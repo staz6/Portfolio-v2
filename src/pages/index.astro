@@ -1,12 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Hero } from "../components/hero/Hero";
 ---
 
 <Layout title="Aahad | Portfolio">
   <main>
-    <section id="hero" class="flex min-h-screen items-center justify-center pt-20">
-      <h1 class="text-5xl font-bold">Hero Section</h1>
-    </section>
+    <Hero client:load />
 
     <section id="about" class="flex min-h-screen items-center justify-center">
       <h2 class="text-4xl font-bold">About Section</h2>
