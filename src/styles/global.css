@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+    --font-sans: "General Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-heading: "Clash Display", ui-sans-serif, system-ui, sans-serif;
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
@@ -119,6 +121,15 @@
     @apply border-border outline-ring/50;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
     }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    }
+}
+
+/* Custom cursor: hide default when custom cursor is active */
+.custom-cursor-active,
+.custom-cursor-active * {
+  cursor: none !important;
 }
