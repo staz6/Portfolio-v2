@@ -2,41 +2,20 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
+import type { Theme } from "@/hooks/useTheme";
+import { ParticleEmitter } from "./ParticleEmitter";
+import { WireframeShape } from "./WireframeShape";
+import { SkillNetwork } from "./SkillNetwork";
 
-function WireframeShape({
-  position,
-  scale,
-  speed = [0.003, 0.005, 0.001],
-  color,
-  children,
-}: {
-  position: [number, number, number];
-  scale: number;
-  speed?: [number, number, number];
-  color: string;
-  children: React.ReactNode;
-}) {
-  const ref = useRef<THREE.Mesh>(null);
+/* ── Scene layout constants ── */
 
-  useFrame(() => {
-    if (!ref.current) return;
-    ref.current.rotation.x += speed[0];
-    ref.current.rotation.y += speed[1];
-    ref.current.rotation.z += speed[2];
-  });
+const NETWORK_CENTER: [number, number, number] = [3.5, 0.5, -2];
+const ICOSA_POS: [number, number, number] = [-3, -1, -1.5];
+const ICOSA_SPEED: [number, number, number] = [0.004, 0.002, 0.003];
+const OCTA_POS: [number, number, number] = [0.5, 1.5, -4];
+const OCTA_SPEED: [number, number, number] = [0.002, 0.004, 0.002];
 
-  return (
-    <mesh ref={ref} position={position} scale={scale}>
-      {children}
-      <meshBasicMaterial
-        wireframe
-        color={color}
-        transparent
-        opacity={0.12}
-      />
-    </mesh>
-  );
-}
+/* ── Main scene ── */
 
 function Scene({ color }: { color: string }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -61,59 +40,50 @@ function Scene({ color }: { color: string }) {
 
   return (
     <group ref={groupRef}>
-      {/* Large torus — right side */}
-      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.4}>
-        <WireframeShape
-          position={[3.5, 0.5, -2]}
-          scale={2}
-          color={color}
-        >
-          <torusGeometry args={[1, 0.4, 16, 32]} />
-        </WireframeShape>
-      </Float>
+      <SkillNetwork center={NETWORK_CENTER} color={color} />
 
-      {/* Icosahedron — left side */}
       <Float speed={2} rotationIntensity={0.3} floatIntensity={0.5}>
-        <WireframeShape
-          position={[-3, -1, -1.5]}
-          scale={1.5}
-          speed={[0.004, 0.002, 0.003]}
-          color={color}
-        >
+        <WireframeShape position={ICOSA_POS} scale={1.5} speed={ICOSA_SPEED} color={color}>
           <icosahedronGeometry args={[1, 0]} />
         </WireframeShape>
       </Float>
+      <ParticleEmitter origin={ICOSA_POS} radius={1.8} color={color} />
 
-      {/* Octahedron — center back */}
       <Float speed={1.8} rotationIntensity={0.15} floatIntensity={0.3}>
-        <WireframeShape
-          position={[0.5, 1.5, -4]}
-          scale={1}
-          speed={[0.002, 0.004, 0.002]}
-          color={color}
-        >
+        <WireframeShape position={OCTA_POS} scale={1} speed={OCTA_SPEED} color={color}>
           <octahedronGeometry args={[1, 0]} />
         </WireframeShape>
       </Float>
+      <ParticleEmitter origin={OCTA_POS} radius={1.2} color={color} />
     </group>
   );
 }
 
+/* ── Exported wrapper ── */
+
+const SCENE_COLORS: Record<Theme, string> = {
+  orange: "#ff6b2b",
+  "orange-light": "#c45a20",
+  "mono-dark": "#b0b0b0",
+  "mono-light": "#333333",
+};
+
 export function HeroScene() {
-  const [color, setColor] = useState("#ffffff");
+  const [color, setColor] = useState(SCENE_COLORS.orange);
 
   useEffect(() => {
-    const update = () => {
-      const isDark = document.documentElement.classList.contains("dark");
-      setColor(isDark ? "#ffffff" : "#111111");
+    const updateFromTheme = () => {
+      const theme = (document.documentElement.getAttribute("data-theme") ?? "orange") as Theme;
+      setColor(SCENE_COLORS[theme] ?? SCENE_COLORS.orange);
     };
-    update();
+    updateFromTheme();
 
-    const observer = new MutationObserver(update);
+    const observer = new MutationObserver(updateFromTheme);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["class"],
+      attributeFilter: ["data-theme"],
     });
+
     return () => observer.disconnect();
   }, []);
 

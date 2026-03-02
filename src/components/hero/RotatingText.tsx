@@ -20,7 +20,7 @@ export function RotatingText() {
 
   return (
     <div data-hero-rotating className="flex items-center gap-3">
-      <span className="h-px w-12 bg-muted-foreground" />
+      <span className="h-px w-12 bg-primary/60 shadow-[0_0_8px_rgba(255,107,43,0.4)]" />
       <div className="relative h-8 overflow-hidden md:h-10">
         <AnimatePresence mode="wait">
           <motion.span

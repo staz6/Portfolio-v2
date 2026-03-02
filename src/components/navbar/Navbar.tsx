@@ -26,7 +26,7 @@ export function Navbar() {
   const navRef = useRef<HTMLElement>(null);
   const activeSection = useScrollSpy(NAV_ITEMS);
   const { direction, isAtTop } = useScrollDirection(50);
-  const { theme, toggleTheme } = useTheme();
+  const { theme, selectTheme } = useTheme();
 
   // Whether the user has scrolled past the top — controls which navbar mode is shown
   const showFloatingButton = !isAtTop && !menuOpen;
@@ -116,9 +116,8 @@ export function Navbar() {
         {menuOpen && (
           <FullscreenMenu
             items={NAV_ITEMS}
-            activeSection={activeSection}
             theme={theme}
-            toggleTheme={toggleTheme}
+            selectTheme={selectTheme}
             onNavigate={() => setMenuOpen(false)}
           />
         )}
@@ -129,7 +128,7 @@ export function Navbar() {
         <nav className="mx-auto flex items-center px-6 py-5 lg:px-10 lg:py-6">
           {/* Logo — left */}
           <div className="flex-shrink-0">
-            <Logo menuOpen={menuOpen} />
+            <Logo menuOpen={menuOpen} theme={theme} />
           </div>
 
           {/* Glass pill nav — centered */}
@@ -139,7 +138,7 @@ export function Navbar() {
 
           {/* Actions — right */}
           <div className="flex flex-shrink-0 items-center gap-3" data-nav-actions>
-            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+            <ThemeToggle theme={theme} selectTheme={selectTheme} />
           </div>
         </nav>
       </header>

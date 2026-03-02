@@ -1,23 +1,40 @@
 import { useState, useEffect, useCallback } from "react";
 
-type Theme = "dark" | "light";
+export type Theme = "mono-dark" | "mono-light" | "orange" | "orange-light";
+
+const DARK_THEMES: Theme[] = ["mono-dark", "orange"];
+const THEME_CYCLE: Theme[] = ["orange", "orange-light", "mono-dark", "mono-light"];
+
+function applyTheme(theme: Theme) {
+  const root = document.documentElement;
+  root.setAttribute("data-theme", theme);
+  root.classList.toggle("dark", DARK_THEMES.includes(theme));
+  localStorage.setItem("theme", theme);
+}
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("orange");
 
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains("dark");
-    setTheme(isDark ? "dark" : "light");
+    const stored = document.documentElement.getAttribute("data-theme") as Theme | null;
+    if (stored && THEME_CYCLE.includes(stored)) {
+      setTheme(stored);
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
-      const next: Theme = prev === "dark" ? "light" : "dark";
-      document.documentElement.classList.toggle("dark", next === "dark");
-      localStorage.setItem("theme", next);
+      const idx = THEME_CYCLE.indexOf(prev);
+      const next = THEME_CYCLE[(idx + 1) % THEME_CYCLE.length];
+      applyTheme(next);
       return next;
     });
   }, []);
 
-  return { theme, toggleTheme } as const;
+  const selectTheme = useCallback((next: Theme) => {
+    applyTheme(next);
+    setTheme(next);
+  }, []);
+
+  return { theme, toggleTheme, selectTheme } as const;
 }

@@ -12,7 +12,7 @@ const { title, description = "Aahad's Portfolio" } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,10 +25,12 @@ const { title, description = "Aahad's Portfolio" } = Astro.props;
     <title>{title}</title>
     <script is:inline>
       (function () {
-        var t = localStorage.getItem("theme");
-        var p = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        var d = t ? t === "dark" : p;
-        document.documentElement.classList.toggle("dark", d);
+        var DARK = ["mono-dark", "orange"];
+        var VALID = ["mono-dark", "mono-light", "orange", "orange-light"];
+        var stored = localStorage.getItem("theme");
+        var theme = VALID.indexOf(stored) !== -1 ? stored : "orange";
+        document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.classList.toggle("dark", DARK.indexOf(theme) !== -1);
       })();
     </script>
   </head>
