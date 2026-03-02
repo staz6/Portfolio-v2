@@ -20,7 +20,7 @@ export function MenuButton({ isOpen, onClick }: MenuButtonProps) {
           "relative flex h-12 w-12 items-center justify-center rounded-full transition-all duration-500 hover:scale-110",
           isOpen
             ? "bg-background text-foreground"
-            : "bg-foreground text-background",
+            : "bg-primary text-primary-foreground",
         )}
         data-cursor-scale
       >
@@ -28,7 +28,7 @@ export function MenuButton({ isOpen, onClick }: MenuButtonProps) {
           <motion.span
             className={cn(
               "block h-[1.5px] w-full origin-center transition-colors duration-500",
-              isOpen ? "bg-foreground" : "bg-background",
+              isOpen ? "bg-foreground" : "bg-primary-foreground",
             )}
             animate={
               isOpen
@@ -40,7 +40,7 @@ export function MenuButton({ isOpen, onClick }: MenuButtonProps) {
           <motion.span
             className={cn(
               "block h-[1.5px] w-full origin-center transition-colors duration-500",
-              isOpen ? "bg-foreground" : "bg-background",
+              isOpen ? "bg-foreground" : "bg-primary-foreground",
             )}
             animate={
               isOpen

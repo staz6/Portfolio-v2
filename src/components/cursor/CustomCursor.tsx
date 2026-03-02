@@ -86,7 +86,7 @@ export function CustomCursor() {
   return (
     <div
       ref={cursorRef}
-      className="pointer-events-none fixed top-0 left-0 z-[9999] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
+      className="pointer-events-none fixed top-0 left-0 z-[99999] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
       style={{ mixBlendMode: "difference" }}
     />
   );

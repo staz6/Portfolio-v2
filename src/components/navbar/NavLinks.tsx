@@ -24,7 +24,7 @@ export function NavLinks({ items, activeSection }: NavLinksProps) {
       className="hidden md:block"
       data-nav-link
     >
-      <div className="rounded-full border border-foreground/10 bg-foreground/5 px-1.5 py-1.5 backdrop-blur-md">
+      <div className="rounded-full border border-primary/15 bg-primary/5 px-1.5 py-1.5 backdrop-blur-md">
         <ul
           className="flex items-center gap-0.5"
           onMouseLeave={() => setHoveredIndex(null)}
@@ -42,7 +42,7 @@ export function NavLinks({ items, activeSection }: NavLinksProps) {
                   className={cn(
                     "relative z-10 block rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-300",
                     isActive
-                      ? "text-background"
+                      ? "text-primary-foreground"
                       : isHovered
                         ? "text-foreground"
                         : "text-muted-foreground",
@@ -56,7 +56,7 @@ export function NavLinks({ items, activeSection }: NavLinksProps) {
                 {isActive && (
                   <motion.div
                     layoutId="activePill"
-                    className="absolute inset-0 rounded-full bg-foreground"
+                    className="absolute inset-0 rounded-full bg-primary"
                     transition={{
                       type: "spring",
                       stiffness: 400,
@@ -69,7 +69,7 @@ export function NavLinks({ items, activeSection }: NavLinksProps) {
                 {isHovered && !isActive && (
                   <motion.div
                     layoutId="hoverPill"
-                    className="absolute inset-0 rounded-full bg-foreground/10"
+                    className="absolute inset-0 rounded-full bg-primary/10"
                     transition={{
                       type: "spring",
                       stiffness: 400,

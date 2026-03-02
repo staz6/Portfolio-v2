@@ -44,14 +44,18 @@ export function HeroStats() {
   }, []);
 
   return (
-    <div ref={containerRef} className="flex gap-8 md:gap-12">
+    <div ref={containerRef} className="flex gap-4 md:gap-6">
       {STATS.map((stat) => (
-        <div key={stat.label} data-hero-stat className="flex flex-col">
+        <div
+          key={stat.label}
+          data-hero-stat
+          className="flex flex-col rounded-xl border border-primary/10 bg-primary/[0.04] px-5 py-4 backdrop-blur-sm"
+        >
           <div className="flex items-baseline gap-0.5">
             <span
               data-hero-stat-number
               data-target={stat.value}
-              className="font-heading text-4xl font-bold text-foreground md:text-5xl"
+              className="font-heading text-4xl font-bold text-primary md:text-5xl"
             >
               0
             </span>

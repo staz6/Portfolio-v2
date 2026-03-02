@@ -9,6 +9,7 @@ import { HeroStats } from "./HeroStats";
 import { HeroSocials } from "./HeroSocials";
 import { HeroCTA } from "./HeroCTA";
 import { HeroLocation } from "./HeroLocation";
+import { HeroMarquee } from "./HeroMarquee";
 import { HeroScene } from "./HeroScene";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -26,9 +27,9 @@ export function Hero() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set(
         section.querySelectorAll(
-          "[data-hero-char], [data-hero-rotating], [data-hero-bio], [data-hero-stat], [data-hero-cta], [data-hero-social], [data-hero-scroll], [data-hero-badge], [data-hero-line], [data-hero-scene], [data-hero-location]",
+          "[data-hero-char], [data-hero-rotating], [data-hero-bio], [data-hero-stat], [data-hero-cta], [data-hero-social], [data-hero-scroll], [data-hero-badge], [data-hero-scene], [data-hero-location], [data-hero-marquee]",
         ),
-        { opacity: 1, y: 0, x: 0, scale: 1, scaleX: 1 },
+        { opacity: 1, y: 0, x: 0, scale: 1 },
       );
       return;
     }
@@ -69,18 +70,7 @@ export function Hero() {
       "-=1.2",
     );
 
-    // 3. Decorative line expands
-    tl.from(
-      "[data-hero-line]",
-      {
-        scaleX: 0,
-        duration: 0.8,
-        ease: "power3.inOut",
-      },
-      "-=0.6",
-    );
-
-    // 4. Rotating title
+    // 3. Rotating title
     tl.from(
       "[data-hero-rotating]",
       {
@@ -89,6 +79,16 @@ export function Hero() {
         duration: 0.6,
       },
       "-=0.5",
+    );
+
+    // 4. Tech marquee
+    tl.from(
+      "[data-hero-marquee]",
+      {
+        opacity: 0,
+        duration: 0.6,
+      },
+      "-=0.3",
     );
 
     // 5. Bio + Stats (bottom row)
@@ -166,27 +166,161 @@ export function Hero() {
     };
   }, []);
 
-  // Scroll parallax — content fades and moves up as user scrolls
+  // Scroll parallax — layered depth + horizontal text movement
   useEffect(() => {
     const content = contentRef.current;
     const section = sectionRef.current;
     if (!content || !section) return;
 
-    const trigger = ScrollTrigger.create({
-      trigger: section,
-      start: "top top",
-      end: "bottom top",
-      scrub: true,
-      onUpdate: (self) => {
-        gsap.set(content, {
-          y: self.progress * -100,
-          opacity: 1 - self.progress * 0.6,
-        });
-      },
-    });
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const triggers: ScrollTrigger[] = [];
+
+    // Bravild-style polygon clip on the entire section
+    triggers.push(
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+        onUpdate: (self) => {
+          const p = self.progress;
+          // Asymmetric trapezoid — right side narrows more, bottom-left rises more
+          const tlX = p * 20;
+          const trX = 100 - p * 25;
+          const brX = 100 - p * 5;
+          const blX = p * 2;
+          const blY = 100 - p * 12;
+          const brY = 100 - p * 4;
+
+          section.style.clipPath = `polygon(${tlX}% 0%, ${trX}% 0%, ${brX}% ${brY}%, ${blX}% ${blY}%)`;
+        },
+      }),
+    );
+
+    // Overall content fade + lift
+    triggers.push(
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+        onUpdate: (self) => {
+          gsap.set(content, {
+            y: self.progress * -100,
+            opacity: 1 - self.progress * 0.6,
+          });
+        },
+      }),
+    );
+
+    // "AAHAD" slides left on scroll
+    const nameEl = section.querySelector("[data-hero-name]");
+    if (nameEl) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          onUpdate: (self) => {
+            gsap.set(nameEl, { x: self.progress * -150 });
+          },
+        }),
+      );
+    }
+
+    // "DEVELOPER" slides right on scroll
+    const roleEl = section.querySelector("[data-hero-role]");
+    if (roleEl) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          onUpdate: (self) => {
+            gsap.set(roleEl, { x: self.progress * 150 });
+          },
+        }),
+      );
+    }
+
+    // Badge fades out faster
+    const badge = section.querySelector("[data-hero-badge]");
+    if (badge) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top top",
+          end: "30% top",
+          scrub: true,
+          onUpdate: (self) => {
+            gsap.set(badge, {
+              opacity: 1 - self.progress,
+              y: self.progress * -30,
+            });
+          },
+        }),
+      );
+    }
+
+    // Rotating text fades faster
+    const rotating = section.querySelector("[data-hero-rotating]");
+    if (rotating) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top top",
+          end: "40% top",
+          scrub: true,
+          onUpdate: (self) => {
+            gsap.set(rotating, {
+              opacity: 1 - self.progress,
+              y: self.progress * -20,
+            });
+          },
+        }),
+      );
+    }
+
+    // Stats move up slower (parallax depth)
+    const statsEls = section.querySelectorAll("[data-hero-stat]");
+    if (statsEls.length) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          onUpdate: (self) => {
+            gsap.set(statsEls, { y: self.progress * -40 });
+          },
+        }),
+      );
+    }
+
+    // Location badge — slight scale down on scroll
+    const location = section.querySelector("[data-hero-location]");
+    if (location) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          onUpdate: (self) => {
+            gsap.set(location, {
+              scale: 1 - self.progress * 0.15,
+              y: self.progress * -20,
+            });
+          },
+        }),
+      );
+    }
 
     return () => {
-      trigger.kill();
+      triggers.forEach((t) => t.kill());
     };
   }, []);
 
@@ -194,25 +328,26 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex min-h-screen items-center overflow-hidden pt-20"
+      className="noise-overlay hero-grid relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
     >
+      {/* Radial glow blobs */}
+      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[60%] w-[60%] rounded-full bg-primary/[0.08] blur-[120px]" />
+      <div className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[50%] w-[50%] rounded-full bg-primary/[0.06] blur-[100px]" />
+      <div className="pointer-events-none absolute top-1/3 left-1/2 h-[35%] w-[35%] -translate-x-1/2 rounded-full bg-primary/[0.05] blur-[80px]" />
+
       {/* 3D wireframe shapes */}
       <HeroScene />
 
-      {/* Background gradient blobs */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-1/4 -right-1/4 h-[600px] w-[600px] rounded-full bg-primary/5 blur-[120px]" />
-        <div className="absolute -bottom-1/4 -left-1/4 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
-      </div>
-
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 lg:gap-14 lg:px-10"
+        className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 lg:gap-8 lg:px-10"
       >
         {/* Top — badge */}
         <div data-hero-badge>
-          <span className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+          <span className="inline-flex items-center gap-3 rounded-full border border-primary/20 bg-primary/10 py-1.5 pl-2 pr-5 text-sm font-medium text-foreground shadow-[0_0_20px_rgba(255,107,43,0.15)] backdrop-blur-md">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+            </span>
             Available for work
           </span>
         </div>
@@ -220,11 +355,12 @@ export function Hero() {
         {/* Center — massive name */}
         <div className="flex flex-col gap-4">
           <HeroTitle />
-          <div
-            data-hero-line
-            className="h-px w-full origin-left bg-border"
-          />
           <RotatingText />
+        </div>
+
+        {/* Full-width tech marquee — breaks out of container */}
+        <div className="relative left-1/2 w-screen -translate-x-1/2">
+          <HeroMarquee />
         </div>
 
         {/* Bottom — bio left, stats right */}
@@ -250,10 +386,10 @@ export function Hero() {
         animate={{ y: [0, 8, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       >
-        <span className="text-xs uppercase tracking-widest text-muted-foreground">
+        <span className="text-xs uppercase tracking-widest text-primary/60">
           Scroll
         </span>
-        <div className="h-12 w-px bg-gradient-to-b from-muted-foreground to-transparent" />
+        <div className="h-12 w-px bg-gradient-to-b from-primary/50 to-transparent" />
       </motion.div>
     </section>
   );
