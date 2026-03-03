@@ -9,6 +9,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { useTheme } from "@/hooks/useTheme";
+import { useAfterPreloader } from "@/hooks/useAfterPreloader";
 
 const NAV_ITEMS = [
   { label: "Home", href: "#hero" },
@@ -31,45 +32,34 @@ export function Navbar() {
   // Whether the user has scrolled past the top — controls which navbar mode is shown
   const showFloatingButton = !isAtTop && !menuOpen;
 
-  // GSAP entrance animation for the top navbar
+  // GSAP entrance animation for the top navbar — waits for preloader
+  const navTl = useRef<gsap.core.Timeline>();
+
   useEffect(() => {
     if (!navRef.current) return;
+    gsap.set(navRef.current, { visibility: "hidden" });
+    return () => { navTl.current?.kill(); };
+  }, []);
+
+  useAfterPreloader(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    gsap.set(nav, { visibility: "visible" });
 
     const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+    navTl.current = tl;
 
-    tl.from(navRef.current.querySelector("[data-nav-logo]"), {
-      scale: 0,
-      opacity: 0,
-      duration: 0.6,
-      delay: 0.3,
-      ease: "back.out(1.7)",
+    tl.from(nav.querySelector("[data-nav-logo]"), {
+      scale: 0, opacity: 0, duration: 0.6, delay: 0.3, ease: "back.out(1.7)",
     });
-
-    tl.from(
-      navRef.current.querySelector("[data-nav-link]"),
-      {
-        y: 20,
-        opacity: 0,
-        scale: 0.9,
-        duration: 0.5,
-      },
-      "-=0.3",
-    );
-
-    tl.from(
-      navRef.current.querySelector("[data-nav-actions]"),
-      {
-        x: 20,
-        opacity: 0,
-        duration: 0.4,
-      },
-      "-=0.2",
-    );
-
-    return () => {
-      tl.kill();
-    };
-  }, []);
+    tl.from(nav.querySelector("[data-nav-link]"), {
+      y: 20, opacity: 0, scale: 0.9, duration: 0.5,
+    }, "-=0.3");
+    tl.from(nav.querySelector("[data-nav-actions]"), {
+      x: 20, opacity: 0, duration: 0.4,
+    }, "-=0.2");
+  });
 
   // Hide/show the top navbar on scroll
   useEffect(() => {

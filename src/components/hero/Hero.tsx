@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useAfterPreloader } from "@/hooks/useAfterPreloader";
 import { HeroTitle } from "./HeroTitle";
 import { RotatingText } from "./RotatingText";
 import { HeroBio } from "./HeroBio";
@@ -18,7 +19,9 @@ export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Master entrance timeline
+  // Master entrance timeline — waits for preloader to finish
+  const entranceTl = useRef<gsap.core.Timeline>();
+
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -34,137 +37,62 @@ export function Hero() {
       return;
     }
 
-    const tl = gsap.timeline({
-      defaults: { ease: "power4.out", duration: 0.8 },
-      delay: 0.6,
-    });
-
-    // 1. Badge
-    tl.from("[data-hero-badge]", {
-      y: 20,
-      opacity: 0,
-      duration: 0.5,
-    });
-
-    // 2. 3D scene fades in
-    tl.from(
-      "[data-hero-scene]",
-      {
-        opacity: 0,
-        duration: 1.5,
-        ease: "power2.inOut",
-      },
-      "-=0.3",
-    );
-
-    // 3. Name characters — slide up from mask
-    const chars = section.querySelectorAll("[data-hero-char]");
-    tl.from(
-      chars,
-      {
-        y: "110%",
-        duration: 1,
-        ease: "power4.out",
-        stagger: 0.03,
-      },
-      "-=1.2",
-    );
-
-    // 3. Rotating title
-    tl.from(
-      "[data-hero-rotating]",
-      {
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-      },
-      "-=0.5",
-    );
-
-    // 4. Tech marquee
-    tl.from(
-      "[data-hero-marquee]",
-      {
-        opacity: 0,
-        duration: 0.6,
-      },
-      "-=0.3",
-    );
-
-    // 5. Bio + Stats (bottom row)
-    tl.from(
-      "[data-hero-bio]",
-      {
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-      },
-      "-=0.3",
-    );
-
-    const stats = section.querySelectorAll("[data-hero-stat]");
-    tl.from(
-      stats,
-      {
-        y: 30,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.1,
-      },
-      "-=0.4",
-    );
-
-    // 6. Location badge
-    tl.from(
-      "[data-hero-location]",
-      {
-        scale: 0.8,
-        opacity: 0,
-        duration: 0.5,
-        ease: "back.out(1.7)",
-      },
-      "-=0.3",
-    );
-
-    // 7. CTA
-    tl.from(
-      "[data-hero-cta]",
-      {
-        scale: 0.8,
-        opacity: 0,
-        duration: 0.5,
-        ease: "back.out(1.7)",
-      },
-      "-=0.3",
-    );
-
-    // 7. Socials
-    const socials = section.querySelectorAll("[data-hero-social]");
-    tl.from(
-      socials,
-      {
-        x: -20,
-        opacity: 0,
-        duration: 0.4,
-        stagger: 0.08,
-      },
-      "-=0.3",
-    );
-
-    // 8. Scroll indicator
-    tl.from(
-      "[data-hero-scroll]",
-      {
-        opacity: 0,
-        duration: 0.5,
-      },
-      "-=0.1",
-    );
+    // Hide while preloader is up. Using visibility (not opacity) so
+    // gsap.from({ opacity: 0 }) targets remain correct.
+    gsap.set(section, { visibility: "hidden" });
 
     return () => {
-      tl.kill();
+      entranceTl.current?.kill();
     };
   }, []);
+
+  useAfterPreloader(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    gsap.set(section, { visibility: "visible" });
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power4.out", duration: 0.8 },
+    });
+    entranceTl.current = tl;
+
+    // 1. Badge
+    tl.from("[data-hero-badge]", { y: 20, opacity: 0, duration: 0.5 });
+
+    // 2. 3D scene fades in
+    tl.from("[data-hero-scene]", { opacity: 0, duration: 1.5, ease: "power2.inOut" }, "-=0.3");
+
+    // 3. Name characters — slide up from mask
+    tl.from(section.querySelectorAll("[data-hero-char]"), {
+      y: "110%", duration: 1, ease: "power4.out", stagger: 0.03,
+    }, "-=1.2");
+
+    // 4. Rotating title
+    tl.from("[data-hero-rotating]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.5");
+
+    // 5. Tech marquee
+    tl.from("[data-hero-marquee]", { opacity: 0, duration: 0.6 }, "-=0.3");
+
+    // 6. Bio + Stats (bottom row)
+    tl.from("[data-hero-bio]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.3");
+    tl.from(section.querySelectorAll("[data-hero-stat]"), {
+      y: 30, opacity: 0, duration: 0.5, stagger: 0.1,
+    }, "-=0.4");
+
+    // 7. Location badge + CTA
+    tl.from("[data-hero-location]", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, "-=0.3");
+    tl.from("[data-hero-cta]", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, "-=0.3");
+
+    // 8. Socials
+    tl.from(section.querySelectorAll("[data-hero-social]"), {
+      x: -20, opacity: 0, duration: 0.4, stagger: 0.08,
+    }, "-=0.3");
+
+    // 9. Scroll indicator
+    tl.from("[data-hero-scroll]", { opacity: 0, duration: 0.5 }, "-=0.1");
+  });
 
   // Scroll parallax — layered depth + horizontal text movement
   useEffect(() => {
