@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import gsap from "gsap";
+import { useAfterPreloader } from "@/hooks/useAfterPreloader";
 
 interface Stat {
   value: number;
@@ -16,32 +17,23 @@ const STATS: Stat[] = [
 export function HeroStats() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useAfterPreloader(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const numberEls = container.querySelectorAll("[data-hero-stat-number]");
-    const tweens: gsap.core.Tween[] = [];
-
-    numberEls.forEach((el) => {
+    container.querySelectorAll("[data-hero-stat-number]").forEach((el) => {
       const target = parseInt(el.getAttribute("data-target") || "0", 10);
       const obj = { value: 0 };
-      const tween = gsap.to(obj, {
+      gsap.to(obj, {
         value: target,
         duration: 2,
-        delay: 1.5,
         ease: "power2.out",
         onUpdate: () => {
           el.textContent = Math.round(obj.value).toString();
         },
       });
-      tweens.push(tween);
     });
-
-    return () => {
-      tweens.forEach((t) => t.kill());
-    };
-  }, []);
+  }, 2500);
 
   return (
     <div ref={containerRef} className="flex gap-4 md:gap-6">
