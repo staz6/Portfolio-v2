@@ -299,6 +299,35 @@
   -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, black 0%, transparent 70%);
 }
 
+/* About section background grid — animated drift via background-position */
+.about-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--primary) 1px, transparent 1px),
+    linear-gradient(90deg, var(--primary) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.15;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 80% 70% at 40% 50%, black 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 40% 50%, black 0%, transparent 70%);
+  animation: about-grid-drift 12s ease-in-out infinite;
+}
+
+@keyframes about-grid-drift {
+  0%, 100% { background-position: 0px 0px; }
+  25% { background-position: 35px -25px; }
+  50% { background-position: -20px -45px; }
+  75% { background-position: -30px 15px; }
+}
+
+/* Animated glow pulse for about section */
+@keyframes about-glow-pulse {
+  0%, 100% { opacity: 0.08; transform: scale(1) translate(0, 0); }
+  50% { opacity: 0.15; transform: scale(1.2) translate(20px, -15px); }
+}
+
 /* Marquee edge fade masks */
 .marquee-fade {
   mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);

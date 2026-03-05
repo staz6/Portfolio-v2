@@ -91,9 +91,11 @@ export function Navbar() {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  // Body scroll lock when menu is open
+  // Body scroll lock when menu is open (unlock handled by AnimatePresence onExitComplete)
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    }
     return () => {
       document.body.style.overflow = "";
     };
@@ -102,7 +104,9 @@ export function Navbar() {
   return (
     <>
       {/* Fullscreen menu overlay */}
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={() => {
+        document.body.style.overflow = "";
+      }}>
         {menuOpen && (
           <FullscreenMenu
             items={NAV_ITEMS}
