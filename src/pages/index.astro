@@ -2,6 +2,8 @@
 import Layout from "../layouts/Layout.astro";
 import { Hero } from "../components/hero/Hero";
 import { AboutSwitcher } from "../components/about/AboutSwitcher";
+import { ProjectsV1 } from "../components/projects/ProjectsV1";
+import { Workflow } from "../components/workflow/Workflow";
 ---
 
 <Layout title="Aahad | Portfolio">
@@ -10,19 +12,15 @@ import { AboutSwitcher } from "../components/about/AboutSwitcher";
 
     <AboutSwitcher client:load />
 
-    <section id="skills" class="flex min-h-screen items-center justify-center">
-      <h2 class="text-4xl font-bold">Skills Section</h2>
-    </section>
+    <Workflow client:load />
 
-    <section id="projects" class="flex min-h-screen items-center justify-center">
-      <h2 class="text-4xl font-bold">Projects Section</h2>
-    </section>
+    <ProjectsV1 client:load />
 
-    <section id="experience" class="flex min-h-screen items-center justify-center">
+    <section id="experience" class="flex min-h-screen items-center justify-center bg-background">
       <h2 class="text-4xl font-bold">Experience Section</h2>
     </section>
 
-    <section id="contact" class="flex min-h-screen items-center justify-center">
+    <section id="contact" class="flex min-h-screen items-center justify-center bg-background">
       <h2 class="text-4xl font-bold">Contact Section</h2>
     </section>
   </main>
