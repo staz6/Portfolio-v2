@@ -26,3 +26,9 @@ pnpm-debug.log*
 # bun
 bun.lock
 .vercel
+
+# playwright MCP logs
+.playwright-mcp/
+
+# debug screenshots
+*.png

@@ -4,6 +4,7 @@ import { Hero } from "../components/hero/Hero";
 import { AboutSwitcher } from "../components/about/AboutSwitcher";
 import { ProjectsV1 } from "../components/projects/ProjectsV1";
 import { Workflow } from "../components/workflow/Workflow";
+import { Experience } from "../components/experience/Experience";
 ---
 
 <Layout title="Aahad | Portfolio">
@@ -16,9 +17,7 @@ import { Workflow } from "../components/workflow/Workflow";
 
     <ProjectsV1 client:load />
 
-    <section id="experience" class="flex min-h-screen items-center justify-center bg-background">
-      <h2 class="text-4xl font-bold">Experience Section</h2>
-    </section>
+    <Experience client:load />
 
     <section id="contact" class="flex min-h-screen items-center justify-center bg-background">
       <h2 class="text-4xl font-bold">Contact Section</h2>
