@@ -357,6 +357,21 @@
   -webkit-mask-image: radial-gradient(ellipse 60% 60% at 60% 40%, black 0%, transparent 70%);
 }
 
+/* Contact section background grid */
+.contact-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--primary) 1px, transparent 1px),
+    linear-gradient(90deg, var(--primary) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.03;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 50% 60% at 50% 60%, black 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 50% 60% at 50% 60%, black 0%, transparent 70%);
+}
+
 /* Animated glow pulse for about section */
 @keyframes about-glow-pulse {
   0%, 100% { opacity: 0.08; transform: scale(1) translate(0, 0); }
@@ -373,6 +388,11 @@
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  animation: marquee 40s linear infinite;
+  will-change: transform;
 }
 
 /* Film grain noise overlay */
