@@ -26,8 +26,8 @@ export function ProjectsV1() {
       className="relative overflow-hidden bg-background"
     >
       {/* Glow blobs */}
-      <div className="pointer-events-none absolute -left-1/4 top-0 h-[50%] w-[50%] rounded-full bg-primary/[0.06] blur-[120px]" />
-      <div className="pointer-events-none absolute -right-1/4 bottom-1/4 h-[45%] w-[45%] rounded-full bg-primary/[0.05] blur-[100px]" />
+      <div className="pointer-events-none absolute -left-1/4 top-0 h-[50%] w-[50%] rounded-full bg-primary/[0.06] blur-[60px] lg:blur-[120px]" />
+      <div className="pointer-events-none absolute -right-1/4 bottom-1/4 h-[45%] w-[45%] rounded-full bg-primary/[0.05] blur-[50px] lg:blur-[100px]" />
 
       {/* Heading */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-10">
