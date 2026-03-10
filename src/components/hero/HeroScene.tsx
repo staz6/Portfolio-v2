@@ -1,4 +1,4 @@
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
@@ -20,17 +20,14 @@ const OCTA_SPEED: [number, number, number] = [0.002, 0.004, 0.002];
 function Scene({ color }: { color: string }) {
   const groupRef = useRef<THREE.Group>(null);
   const mouse = useRef({ x: 0, y: 0 });
-  const { invalidate } = useThree();
-
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       mouse.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
       mouse.current.y = -(e.clientY / window.innerHeight - 0.5) * 2;
-      invalidate();
     };
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
-  }, [invalidate]);
+  }, []);
 
   useFrame(() => {
     if (!groupRef.current) return;
@@ -38,7 +35,6 @@ function Scene({ color }: { color: string }) {
       (mouse.current.x * 0.15 - groupRef.current.rotation.y) * 0.03;
     groupRef.current.rotation.x +=
       (mouse.current.y * 0.08 - groupRef.current.rotation.x) * 0.03;
-    invalidate();
   });
 
   return (
@@ -95,7 +91,7 @@ export function HeroScene() {
       <Canvas
         camera={{ position: [0, 0, 8], fov: 45 }}
         dpr={[1, 1.5]}
-        frameloop="demand"
+        frameloop="always"
         gl={{ alpha: true, antialias: true }}
       >
         <Scene color={color} />
