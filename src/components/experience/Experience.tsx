@@ -31,7 +31,7 @@ export function Experience() {
     <section
       ref={sectionRef}
       id="experience"
-      className="noise-overlay experience-grid relative overflow-hidden bg-background"
+      className="experience-grid relative overflow-hidden bg-background"
     >
       {/* Heading */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-40">

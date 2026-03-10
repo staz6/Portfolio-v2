@@ -23,7 +23,7 @@ export function ProjectsV1() {
     <section
       ref={sectionRef}
       id="projects"
-      className="noise-overlay projects-grid relative overflow-hidden bg-background"
+      className="projects-grid relative overflow-hidden bg-background"
     >
       {/* Glow blobs */}
       <div className="pointer-events-none absolute -left-1/4 top-0 h-[50%] w-[50%] rounded-full bg-primary/[0.06] blur-[120px]" />

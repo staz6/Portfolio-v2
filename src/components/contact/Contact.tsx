@@ -31,7 +31,7 @@ export function Contact() {
     <section
       ref={sectionRef}
       id="contact"
-      className="noise-overlay contact-grid relative overflow-hidden bg-background"
+      className="contact-grid relative overflow-hidden bg-background"
     >
       {/* Heading */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pt-24 lg:px-10 lg:pt-40">

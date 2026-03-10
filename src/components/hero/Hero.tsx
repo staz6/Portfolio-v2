@@ -142,38 +142,6 @@ export function Hero() {
       }),
     );
 
-    // "AAHAD" slides left on scroll
-    const nameEl = section.querySelector("[data-hero-name]");
-    if (nameEl) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          onUpdate: (self) => {
-            gsap.set(nameEl, { x: self.progress * -150 });
-          },
-        }),
-      );
-    }
-
-    // "DEVELOPER" slides right on scroll
-    const roleEl = section.querySelector("[data-hero-role]");
-    if (roleEl) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          onUpdate: (self) => {
-            gsap.set(roleEl, { x: self.progress * 150 });
-          },
-        }),
-      );
-    }
-
     // Badge fades out faster
     const badge = section.querySelector("[data-hero-badge]");
     if (badge) {
@@ -256,7 +224,7 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="noise-overlay hero-grid relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
+      className="hero-grid relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
     >
       {/* Radial glow blobs */}
       <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[60%] w-[60%] rounded-full bg-primary/[0.08] blur-[120px]" />
