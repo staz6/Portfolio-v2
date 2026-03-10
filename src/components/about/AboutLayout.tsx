@@ -18,7 +18,7 @@ export function AboutLayout({ sectionRef, children, contentGap = "lg:gap-20", sc
     <section
       ref={sectionRef}
       id="about"
-      className="noise-overlay about-grid relative overflow-hidden bg-background py-24 lg:py-40"
+      className="about-grid relative overflow-hidden bg-background py-24 lg:py-40"
     >
       {/* Radial glow blobs */}
       <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[60%] w-[60%] rounded-full bg-primary/[0.06] blur-[120px]" />

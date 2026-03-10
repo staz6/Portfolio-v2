@@ -178,8 +178,6 @@ export const AboutSphere = memo(function AboutSphere({ color, entered = false }:
     }
     // Update color reactively
     uniforms.uColor.value.set(color);
-
-    invalidate();
   });
 
   return (

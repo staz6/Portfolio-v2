@@ -1,9 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { Hero } from "../components/hero/Hero";
-import { AboutSwitcher } from "../components/about/AboutSwitcher";
+import { About } from "../components/about/About";
 import { ProjectsV1 } from "../components/projects/ProjectsV1";
-import { Workflow } from "../components/workflow/Workflow";
 import { Experience } from "../components/experience/Experience";
 import { Contact } from "../components/contact/Contact";
 ---
@@ -12,14 +11,12 @@ import { Contact } from "../components/contact/Contact";
   <main>
     <Hero client:load />
 
-    <AboutSwitcher client:load />
+    <About client:visible />
 
-    <Workflow client:load />
+    <ProjectsV1 client:visible />
 
-    <ProjectsV1 client:load />
+    <Experience client:idle />
 
-    <Experience client:load />
-
-    <Contact client:load />
+    <Contact client:idle />
   </main>
 </Layout>

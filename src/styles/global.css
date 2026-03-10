@@ -289,21 +289,6 @@
   animation: none;
 }
 
-/* Hero background grid pattern */
-.hero-grid::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--primary) 1px, transparent 1px),
-    linear-gradient(90deg, var(--primary) 1px, transparent 1px);
-  background-size: 80px 80px;
-  opacity: 0.03;
-  pointer-events: none;
-  mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, black 0%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, black 0%, transparent 70%);
-}
-
 /* About section background grid — animated drift via background-position */
 .about-grid::after {
   content: "";
@@ -327,50 +312,6 @@
   75% { background-position: -30px 15px; }
 }
 
-/* Projects section background grid */
-.projects-grid::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--primary) 1px, transparent 1px),
-    linear-gradient(90deg, var(--primary) 1px, transparent 1px);
-  background-size: 80px 80px;
-  opacity: 0.03;
-  pointer-events: none;
-  mask-image: radial-gradient(ellipse 70% 50% at 50% 30%, black 0%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 30%, black 0%, transparent 70%);
-}
-
-/* Experience section background grid */
-.experience-grid::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--primary) 1px, transparent 1px),
-    linear-gradient(90deg, var(--primary) 1px, transparent 1px);
-  background-size: 80px 80px;
-  opacity: 0.03;
-  pointer-events: none;
-  mask-image: radial-gradient(ellipse 60% 60% at 60% 40%, black 0%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 60% 40%, black 0%, transparent 70%);
-}
-
-/* Contact section background grid */
-.contact-grid::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--primary) 1px, transparent 1px),
-    linear-gradient(90deg, var(--primary) 1px, transparent 1px);
-  background-size: 80px 80px;
-  opacity: 0.03;
-  pointer-events: none;
-  mask-image: radial-gradient(ellipse 50% 60% at 50% 60%, black 0%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse 50% 60% at 50% 60%, black 0%, transparent 70%);
-}
 
 /* Animated glow pulse for about section */
 @keyframes about-glow-pulse {
