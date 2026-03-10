@@ -224,7 +224,7 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="hero-grid relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
+      className="noise-overlay hero-grid relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
     >
       {/* Radial glow blobs */}
       <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[60%] w-[60%] rounded-full bg-primary/[0.08] blur-[120px]" />
