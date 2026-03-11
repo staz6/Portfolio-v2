@@ -1,22 +1,31 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { ProjectsHeading } from "./ProjectsHeading";
-import { V1ProjectItem } from "./V1ProjectItem";
-import { V1ImageModal } from "./V1ImageModal";
-import { useProjectsV1Animations } from "./useProjectsV1Animations";
+import { ProjectItem } from "./ProjectItem";
+import { useProjectsAnimations } from "./useProjectsAnimations";
 import { useProjectsBgTransition } from "./useProjectsBgTransition";
 import { PROJECTS } from "./projectsData";
 
-export function ProjectsV1() {
-  const sectionRef = useProjectsV1Animations();
+export function Projects() {
+  const sectionRef = useProjectsAnimations();
   useProjectsBgTransition(sectionRef);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const isTouchRef = useRef(
+    typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches
+  );
 
   const handleHoverStart = useCallback((index: number) => {
-    setActiveIndex(index);
+    if (isTouchRef.current) return;
+    setExpandedIndex(index);
   }, []);
 
   const handleHoverEnd = useCallback(() => {
-    setActiveIndex(null);
+    if (isTouchRef.current) return;
+    setExpandedIndex(null);
+  }, []);
+
+  const handleTap = useCallback((index: number) => {
+    if (!isTouchRef.current) return;
+    setExpandedIndex((prev) => (prev === index ? null : index));
   }, []);
 
   return (
@@ -36,21 +45,20 @@ export function ProjectsV1() {
 
       {/* Project list */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 lg:px-10">
-        <div data-v1-list className="border-t border-border/40">
+        <div data-project-list className="border-t border-border/40">
           {PROJECTS.map((project, i) => (
-            <V1ProjectItem
+            <ProjectItem
               key={project.slug.current}
               project={project}
               index={i}
+              isExpanded={expandedIndex === i}
               onHoverStart={handleHoverStart}
               onHoverEnd={handleHoverEnd}
+              onTap={handleTap}
             />
           ))}
         </div>
       </div>
-
-      {/* Floating cursor-following image */}
-      <V1ImageModal activeIndex={activeIndex} />
     </section>
   );
 }
