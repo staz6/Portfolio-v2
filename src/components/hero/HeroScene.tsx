@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import * as THREE from "three";
 import type { Theme } from "@/hooks/useTheme";
 import { ParticleEmitter } from "./ParticleEmitter";
@@ -20,7 +20,6 @@ const OCTA_SPEED: [number, number, number] = [0.002, 0.004, 0.002];
 function Scene({ color }: { color: string }) {
   const groupRef = useRef<THREE.Group>(null);
   const mouse = useRef({ x: 0, y: 0 });
-
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       mouse.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -70,6 +69,8 @@ const SCENE_COLORS: Record<Theme, string> = {
 
 export function HeroScene() {
   const [color, setColor] = useState(SCENE_COLORS.orange);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     const updateFromTheme = () => {
@@ -87,11 +88,21 @@ export function HeroScene() {
     return () => observer.disconnect();
   }, []);
 
+  // Pause canvas when scrolled past hero
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div data-hero-scene className="pointer-events-none absolute inset-0">
+    <div ref={containerRef} data-hero-scene className="pointer-events-none absolute inset-0">
       <Canvas
         camera={{ position: [0, 0, 8], fov: 45 }}
         dpr={[1, 1.5]}
+        frameloop={visible ? "always" : "never"}
         gl={{ alpha: true, antialias: true }}
       >
         <Scene color={color} />

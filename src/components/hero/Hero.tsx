@@ -102,146 +102,72 @@ export function Hero() {
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    const isMobile = window.innerWidth < 1024;
     const triggers: ScrollTrigger[] = [];
 
-    // Bravild-style polygon clip on the entire section
+    // Bravild-style polygon clip + content fade/lift
     triggers.push(
       ScrollTrigger.create({
         trigger: section,
         start: "top top",
         end: "bottom top",
-        scrub: true,
+        scrub: isMobile ? 1.5 : 0.3,
         onUpdate: (self) => {
           const p = self.progress;
-          // Asymmetric trapezoid — right side narrows more, bottom-left rises more
           const tlX = p * 20;
           const trX = 100 - p * 25;
           const brX = 100 - p * 5;
           const blX = p * 2;
           const blY = 100 - p * 12;
           const brY = 100 - p * 4;
-
           section.style.clipPath = `polygon(${tlX}% 0%, ${trX}% 0%, ${brX}% ${brY}%, ${blX}% ${blY}%)`;
-        },
-      }),
-    );
-
-    // Overall content fade + lift
-    triggers.push(
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: true,
-        onUpdate: (self) => {
           gsap.set(content, {
-            y: self.progress * -100,
-            opacity: 1 - self.progress * 0.6,
+            y: p * -100,
+            opacity: 1 - p * 0.6,
           });
         },
       }),
     );
 
-    // "AAHAD" slides left on scroll
-    const nameEl = section.querySelector("[data-hero-name]");
-    if (nameEl) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          onUpdate: (self) => {
-            gsap.set(nameEl, { x: self.progress * -150 });
-          },
-        }),
-      );
-    }
 
-    // "DEVELOPER" slides right on scroll
-    const roleEl = section.querySelector("[data-hero-role]");
-    if (roleEl) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          onUpdate: (self) => {
-            gsap.set(roleEl, { x: self.progress * 150 });
-          },
-        }),
-      );
-    }
-
-    // Badge fades out faster
+    // Badge + rotating text fade out (combined)
     const badge = section.querySelector("[data-hero-badge]");
-    if (badge) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "30% top",
-          scrub: true,
-          onUpdate: (self) => {
-            gsap.set(badge, {
-              opacity: 1 - self.progress,
-              y: self.progress * -30,
-            });
-          },
-        }),
-      );
-    }
-
-    // Rotating text fades faster
     const rotating = section.querySelector("[data-hero-rotating]");
-    if (rotating) {
+    if (badge || rotating) {
       triggers.push(
         ScrollTrigger.create({
           trigger: section,
           start: "top top",
           end: "40% top",
-          scrub: true,
+          scrub: isMobile ? 1 : 0.3,
           onUpdate: (self) => {
-            gsap.set(rotating, {
-              opacity: 1 - self.progress,
-              y: self.progress * -20,
-            });
+            const p = self.progress;
+            if (badge) {
+              const badgeP = Math.min(p / 0.75, 1);
+              gsap.set(badge, { opacity: 1 - badgeP, y: badgeP * -30 });
+            }
+            if (rotating) {
+              gsap.set(rotating, { opacity: 1 - p, y: p * -20 });
+            }
           },
         }),
       );
     }
 
-    // Stats move up slower (parallax depth)
+    // Stats + location parallax (combined)
     const statsEls = section.querySelectorAll("[data-hero-stat]");
-    if (statsEls.length) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          onUpdate: (self) => {
-            gsap.set(statsEls, { y: self.progress * -40 });
-          },
-        }),
-      );
-    }
-
-    // Location badge — slight scale down on scroll
     const location = section.querySelector("[data-hero-location]");
-    if (location) {
+    if (statsEls.length || location) {
       triggers.push(
         ScrollTrigger.create({
           trigger: section,
           start: "top top",
           end: "bottom top",
-          scrub: true,
+          scrub: isMobile ? 1.5 : 0.5,
           onUpdate: (self) => {
-            gsap.set(location, {
-              scale: 1 - self.progress * 0.15,
-              y: self.progress * -20,
-            });
+            const p = self.progress;
+            if (statsEls.length) gsap.set(statsEls, { y: p * -40 });
+            if (location) gsap.set(location, { scale: 1 - p * 0.15, y: p * -20 });
           },
         }),
       );
@@ -256,12 +182,12 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="noise-overlay hero-grid relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
+      className="noise-overlay relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
     >
       {/* Radial glow blobs */}
-      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[60%] w-[60%] rounded-full bg-primary/[0.08] blur-[120px]" />
-      <div className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[50%] w-[50%] rounded-full bg-primary/[0.06] blur-[100px]" />
-      <div className="pointer-events-none absolute top-1/3 left-1/2 h-[35%] w-[35%] -translate-x-1/2 rounded-full bg-primary/[0.05] blur-[80px]" />
+      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[60%] w-[60%] rounded-full bg-primary/[0.08] blur-[60px] lg:blur-[120px]" />
+      <div className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[50%] w-[50%] rounded-full bg-primary/[0.06] blur-[50px] lg:blur-[100px]" />
+      <div className="pointer-events-none absolute top-1/3 left-1/2 h-[35%] w-[35%] -translate-x-1/2 rounded-full bg-primary/[0.05] blur-[40px] lg:blur-[80px]" />
 
       {/* 3D wireframe shapes */}
       <HeroScene />

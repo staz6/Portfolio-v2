@@ -96,7 +96,7 @@ export function useAboutAnimations(
       end: "bottom top",
       scrub: 2,
       onUpdate: (self) => {
-        gsap.set(headingChars, { x: self.progress * -30 });
+        gsap.set(headingChars, { x: (self.progress - 0.5) * -30 });
       },
     });
 

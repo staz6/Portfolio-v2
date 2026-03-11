@@ -13,12 +13,12 @@ export function Experience() {
 
   const handleEnter = useCallback((i: number) => {
     clearTimeout(hoverTimeout.current);
-    hoverTimeout.current = setTimeout(() => setHoveredIndex(i), 100);
+    setHoveredIndex(i);
   }, []);
 
   const handleLeave = useCallback(() => {
     clearTimeout(hoverTimeout.current);
-    hoverTimeout.current = setTimeout(() => setHoveredIndex(null), 200);
+    hoverTimeout.current = setTimeout(() => setHoveredIndex(null), 100);
   }, []);
 
   const handleClick = useCallback((i: number) => {
@@ -31,7 +31,7 @@ export function Experience() {
     <section
       ref={sectionRef}
       id="experience"
-      className="noise-overlay experience-grid relative overflow-hidden bg-background"
+      className="relative overflow-hidden bg-background"
     >
       {/* Heading */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-40">
@@ -102,7 +102,7 @@ function ExperienceRow({
               <span className="font-heading text-base font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-primary">
                 {experience.year}
               </span>
-              <h3 className="font-heading text-7xl font-bold text-foreground transition-all duration-500 group-hover:translate-x-2 group-hover:text-primary xl:text-8xl">
+              <h3 className="font-heading text-7xl font-bold text-foreground transition-[translate,color] duration-300 group-hover:translate-x-2 group-hover:text-primary xl:text-8xl">
                 {experience.companyName}
               </h3>
             </div>
@@ -133,46 +133,43 @@ function ExperienceRow({
           </div>
         </div>
 
-        {/* Detail panel — only Framer Motion usage (for height animation) */}
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              key="overlay"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden will-change-[height,opacity]"
-            >
-              <div className="rounded-b-2xl border-x border-b border-primary/20 bg-card px-10 pb-8 pt-6 shadow-xl shadow-primary/[0.03]">
-                <div className="grid grid-cols-[200px_1fr] gap-12">
-                  {/* Left: date + position */}
-                  <div>
-                    <p className="font-heading text-lg font-bold text-foreground">
-                      {experience.position}
-                    </p>
-                    <p className="mt-1.5 text-sm tracking-wider text-muted-foreground">
-                      {experience.startDate} — {experience.endDate ?? "Present"}
-                    </p>
-                  </div>
+        {/* Detail panel — CSS grid-rows for GPU-friendly height animation */}
+        <div
+          className="grid transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          style={{
+            gridTemplateRows: isHovered ? "1fr" : "0fr",
+            opacity: isHovered ? 1 : 0,
+          }}
+        >
+          <div className="overflow-hidden">
+            <div className="rounded-b-2xl border-x border-b border-primary/20 bg-card px-10 pb-8 pt-6 shadow-xl shadow-primary/[0.03]">
+              <div className="grid grid-cols-[200px_1fr] gap-12">
+                {/* Left: date + position */}
+                <div>
+                  <p className="font-heading text-lg font-bold text-foreground">
+                    {experience.position}
+                  </p>
+                  <p className="mt-1.5 text-sm tracking-wider text-muted-foreground">
+                    {experience.startDate} — {experience.endDate ?? "Present"}
+                  </p>
+                </div>
 
-                  {/* Right: highlights */}
-                  <div className="space-y-3">
-                    {experience.highlights.map((h, j) => (
-                      <p
-                        key={j}
-                        className="flex items-start gap-3 text-base leading-relaxed text-foreground/80"
-                      >
-                        <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
-                        {h}
-                      </p>
-                    ))}
-                  </div>
+                {/* Right: highlights */}
+                <div className="space-y-3">
+                  {experience.highlights.map((h, j) => (
+                    <p
+                      key={j}
+                      className="flex items-start gap-3 text-base leading-relaxed text-foreground/80"
+                    >
+                      <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
+                      {h}
+                    </p>
+                  ))}
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ── Mobile ── */}

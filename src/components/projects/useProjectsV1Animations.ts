@@ -80,7 +80,7 @@ export function useProjectsV1Animations() {
       end: "bottom top",
       scrub: 2,
       onUpdate: (self) => {
-        gsap.set(chars, { x: self.progress * -30 });
+        gsap.set(chars, { x: (self.progress - 0.5) * -30 });
       },
     });
 
