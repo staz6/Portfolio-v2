@@ -7,7 +7,7 @@ gsap.registerPlugin(ScrollTrigger);
 const REDUCED_MOTION = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export function useProjectsV1Animations() {
+export function useProjectsAnimations() {
   const sectionRef = useRef<HTMLElement>(null);
 
   // ── 1. Heading entrance (fires once) ──────────────────────────
@@ -43,13 +43,13 @@ export function useProjectsV1Animations() {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
 
-    const items = section.querySelectorAll("[data-v1-item]");
+    const items = section.querySelectorAll("[data-project-item]");
     if (!items.length) return;
 
     gsap.set(items, { y: 80, opacity: 0 });
 
     const trigger = ScrollTrigger.create({
-      trigger: section.querySelector("[data-v1-list]"),
+      trigger: section.querySelector("[data-project-list]"),
       start: "top 70%",
       once: true,
       onEnter: () => {
