@@ -1,4 +1,4 @@
-const SERVICES = [
+const DEFAULT_SERVICES = [
   "Web Development",
   "E-Commerce",
   "API Development",
@@ -9,10 +9,10 @@ const SERVICES = [
   "Cloud & DevOps",
 ];
 
-function MarqueeItems() {
+function MarqueeItems({ items }: { items: string[] }) {
   return (
     <div className="flex shrink-0 items-center gap-8 pr-8">
-      {SERVICES.map((tech, i) => (
+      {items.map((tech, i) => (
         <span
           key={i}
           className="flex items-center gap-3 text-sm font-medium uppercase tracking-widest text-muted-foreground whitespace-nowrap"
@@ -25,7 +25,9 @@ function MarqueeItems() {
   );
 }
 
-export function HeroMarquee() {
+export function HeroMarquee({ services }: { services?: string[] }) {
+  const items = services?.length ? services : DEFAULT_SERVICES;
+
   return (
     <div
       data-hero-marquee
@@ -35,8 +37,8 @@ export function HeroMarquee() {
         className="flex w-max"
         style={{ animation: "marquee 30s linear infinite" }}
       >
-        <MarqueeItems />
-        <MarqueeItems />
+        <MarqueeItems items={items} />
+        <MarqueeItems items={items} />
       </div>
     </div>
   );

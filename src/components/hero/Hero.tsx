@@ -12,10 +12,31 @@ import { HeroCTA } from "./HeroCTA";
 import { HeroLocation } from "./HeroLocation";
 import { HeroMarquee } from "./HeroMarquee";
 import { HeroScene } from "./HeroScene";
+import type { HeroStat, HeroSocial } from "@/sanity/lib/mappers";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function Hero() {
+interface HeroProps {
+  name?: string;
+  title?: string;
+  bio?: string;
+  location?: string;
+  availability?: boolean;
+  stats?: HeroStat[];
+  socials?: HeroSocial[];
+  services?: string[];
+}
+
+export function Hero({
+  name,
+  title,
+  bio,
+  location,
+  availability,
+  stats,
+  socials,
+  services,
+}: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -156,8 +177,8 @@ export function Hero() {
 
     // Stats + location parallax (combined)
     const statsEls = section.querySelectorAll("[data-hero-stat]");
-    const location = section.querySelector("[data-hero-location]");
-    if (statsEls.length || location) {
+    const locationEl = section.querySelector("[data-hero-location]");
+    if (statsEls.length || locationEl) {
       triggers.push(
         ScrollTrigger.create({
           trigger: section,
@@ -167,7 +188,7 @@ export function Hero() {
           onUpdate: (self) => {
             const p = self.progress;
             if (statsEls.length) gsap.set(statsEls, { y: p * -40 });
-            if (location) gsap.set(location, { scale: 1 - p * 0.15, y: p * -20 });
+            if (locationEl) gsap.set(locationEl, { scale: 1 - p * 0.15, y: p * -20 });
           },
         }),
       );
@@ -202,33 +223,33 @@ export function Hero() {
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20">
               <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
             </span>
-            Available for work
+            {availability !== false ? "Available for work" : "Currently unavailable"}
           </span>
         </div>
 
         {/* Center — massive name */}
         <div className="flex flex-col gap-4">
-          <HeroTitle />
+          <HeroTitle name={name} />
           <RotatingText />
         </div>
 
         {/* Full-width tech marquee — breaks out of container */}
         <div className="relative left-1/2 w-screen -translate-x-1/2">
-          <HeroMarquee />
+          <HeroMarquee services={services} />
         </div>
 
         {/* Bottom — bio left, stats right */}
         <div className="flex flex-col justify-between gap-10 lg:flex-row lg:items-end">
           <div className="flex flex-col gap-6">
-            <HeroBio />
+            <HeroBio bio={bio} />
             <div className="flex items-center gap-6">
               <HeroCTA />
-              <HeroSocials />
+              <HeroSocials socials={socials} />
             </div>
           </div>
           <div className="flex flex-col items-start gap-6 lg:items-end">
-            <HeroStats />
-            <HeroLocation />
+            <HeroStats stats={stats} />
+            <HeroLocation location={location} />
           </div>
         </div>
       </div>

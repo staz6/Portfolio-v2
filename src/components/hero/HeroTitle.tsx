@@ -1,6 +1,5 @@
 interface HeroTitleProps {
   name?: string;
-  role?: string;
 }
 
 function SplitText({
@@ -32,15 +31,17 @@ function SplitText({
   );
 }
 
-export function HeroTitle({
-  name = "Aahad",
-  role = "Developer",
-}: HeroTitleProps) {
+export function HeroTitle({ name = "Aahad" }: HeroTitleProps) {
+  // Split name into first name and rest for two-line display
+  const parts = name.split(" ");
+  const firstName = parts[0];
+  const role = "Developer";
+
   return (
     <h1 className="font-heading font-bold uppercase leading-[0.85] tracking-tighter">
       <SplitText
         data-hero-name
-        text={name}
+        text={firstName}
         className="block will-change-transform text-[18vw] md:text-[14vw] lg:text-[11vw]"
         charClassName="hero-char-shine"
       />

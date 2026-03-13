@@ -2,10 +2,13 @@ import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ExperienceHeading } from "./ExperienceHeading";
 import { useExperienceAnimations } from "./useExperienceAnimations";
-import { EXPERIENCES } from "./experienceData";
 import type { ExperienceData } from "./experienceData";
 
-export function Experience() {
+interface ExperienceProps {
+  experiences?: ExperienceData[];
+}
+
+export function Experience({ experiences = [] }: ExperienceProps) {
   const sectionRef = useExperienceAnimations();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<number | null>(null);
@@ -41,7 +44,7 @@ export function Experience() {
       {/* Experience rows */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 lg:px-10">
         <div data-exp-list className="border-t border-border/40">
-          {EXPERIENCES.map((exp, i) => (
+          {experiences.map((exp, i) => (
             <ExperienceRow
               key={exp.companyName}
               experience={exp}

@@ -3,9 +3,13 @@ import { ProjectsHeading } from "./ProjectsHeading";
 import { ProjectItem } from "./ProjectItem";
 import { useProjectsAnimations } from "./useProjectsAnimations";
 import { useProjectsBgTransition } from "./useProjectsBgTransition";
-import { PROJECTS } from "./projectsData";
+import type { ProjectData } from "./projectsData";
 
-export function Projects() {
+interface ProjectsProps {
+  projects?: ProjectData[];
+}
+
+export function Projects({ projects = [] }: ProjectsProps) {
   const sectionRef = useProjectsAnimations();
   useProjectsBgTransition(sectionRef);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -46,7 +50,7 @@ export function Projects() {
       {/* Project list */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 lg:px-10">
         <div data-project-list className="border-t border-border/40">
-          {PROJECTS.map((project, i) => (
+          {projects.map((project, i) => (
             <ProjectItem
               key={project.slug.current}
               project={project}
