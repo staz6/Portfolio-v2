@@ -43,15 +43,19 @@ export function ProjectItem({
           <span className="font-heading text-sm font-semibold text-muted-foreground transition-colors group-hover:text-primary lg:text-base">
             {String(index + 1).padStart(2, "0")}
           </span>
-          <h3 className="font-heading text-3xl font-bold text-foreground transition-all duration-500 group-hover:translate-x-3 group-hover:text-primary md:text-5xl lg:text-7xl xl:text-8xl">
-            <a
-              href={project.projectUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {project.name}
-            </a>
+          <h3 className="font-heading text-2xl font-bold text-foreground transition-all duration-500 group-hover:translate-x-3 group-hover:text-primary md:text-4xl lg:text-6xl xl:text-7xl truncate max-w-[60vw] lg:max-w-[50vw]">
+            {project.projectUrl ? (
+              <a
+                href={project.projectUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {project.name}
+              </a>
+            ) : (
+              <span>{project.name}</span>
+            )}
           </h3>
         </div>
 

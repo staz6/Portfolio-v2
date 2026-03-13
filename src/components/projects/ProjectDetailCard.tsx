@@ -8,7 +8,7 @@ export function ProjectDetailCard({ project }: { project: ProjectData }) {
         <img
           src={project.thumbnail}
           alt={project.name}
-          className="h-auto w-full object-cover"
+          className="h-[300px] w-full object-cover object-top lg:h-[400px]"
         />
       </div>
 
@@ -40,27 +40,33 @@ export function ProjectDetailCard({ project }: { project: ProjectData }) {
 
         {/* Link */}
         <div className="px-6 py-4">
-          <a
-            href={project.projectUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            data-cursor-scale
-            className="group/btn inline-flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.15em] text-foreground transition-colors duration-300 hover:text-primary"
-          >
-            View Project
-            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border/40 transition-all duration-300 group-hover/btn:border-primary group-hover/btn:bg-primary group-hover/btn:text-primary-foreground">
-              <svg
-                className="h-3.5 w-3.5 -rotate-45 transition-transform duration-300 group-hover/btn:rotate-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
-              </svg>
+          {project.projectUrl ? (
+            <a
+              href={project.projectUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              data-cursor-scale
+              className="group/btn inline-flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.15em] text-foreground transition-colors duration-300 hover:text-primary"
+            >
+              View Project
+              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border/40 transition-all duration-300 group-hover/btn:border-primary group-hover/btn:bg-primary group-hover/btn:text-primary-foreground">
+                <svg
+                  className="h-3.5 w-3.5 -rotate-45 transition-transform duration-300 group-hover/btn:rotate-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                </svg>
+              </span>
+            </a>
+          ) : (
+            <span className="inline-flex cursor-not-allowed items-center gap-3 text-sm font-semibold uppercase tracking-[0.15em] text-muted-foreground/40">
+              No Link Available
             </span>
-          </a>
+          )}
         </div>
       </div>
     </div>
