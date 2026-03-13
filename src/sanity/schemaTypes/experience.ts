@@ -34,22 +34,13 @@ export default defineType({
       title: "Current Position",
       type: "boolean",
       initialValue: false,
-      description: "Check if you currently work here.",
-    }),
-    defineField({
-      name: "companyLogo",
-      title: "Company Logo",
-      type: "image",
-      options: { hotspot: true },
-      description: "Company logo displayed in the timeline.",
     }),
     defineField({
       name: "highlights",
       title: "Key Highlights",
       type: "array",
       of: [{ type: "string" }],
-      description:
-        "Bullet points describing your accomplishments and responsibilities.",
+      description: "Bullet points describing your accomplishments.",
     }),
     defineField({
       name: "order",
@@ -60,11 +51,6 @@ export default defineType({
   ],
   orderings: [
     {
-      title: "Start Date (Newest First)",
-      name: "startDateDesc",
-      by: [{ field: "startDate", direction: "desc" }],
-    },
-    {
       title: "Display Order",
       name: "orderAsc",
       by: [{ field: "order", direction: "asc" }],
@@ -74,7 +60,6 @@ export default defineType({
     select: {
       title: "companyName",
       subtitle: "position",
-      media: "companyLogo",
     },
   },
 });

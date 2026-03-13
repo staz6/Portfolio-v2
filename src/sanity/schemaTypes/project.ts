@@ -16,7 +16,6 @@ export default defineType({
       title: "Slug",
       type: "slug",
       options: { source: "name", maxLength: 96 },
-      description: "URL-friendly identifier for project detail pages.",
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -37,36 +36,21 @@ export default defineType({
       title: "Thumbnail Image",
       type: "image",
       options: { hotspot: true },
-      description: "Main image displayed in the project grid.",
+      description: "Main image displayed in the project list.",
       validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: "gallery",
-      title: "Project Gallery",
-      type: "array",
-      of: [{ type: "image", options: { hotspot: true } }],
-      description: "Additional screenshots for the project detail page.",
     }),
     defineField({
       name: "role",
       title: "My Role",
       type: "string",
-      description:
-        "Your role in this project (e.g., 'Full Stack Developer').",
+      description: "Your role in this project (e.g., 'Full Stack Developer').",
     }),
     defineField({
       name: "skills",
       title: "Technologies Used",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "skill" }] }],
-      description: "Link to skill documents. Enables filtering by technology.",
-    }),
-    defineField({
-      name: "featured",
-      title: "Featured Project",
-      type: "boolean",
-      initialValue: false,
-      description: "Featured projects appear prominently on the homepage.",
+      of: [{ type: "string" }],
+      description: "Type a skill name and press enter (e.g., React, Node.js, Stripe).",
     }),
     defineField({
       name: "order",
@@ -80,11 +64,6 @@ export default defineType({
       title: "Display Order",
       name: "orderAsc",
       by: [{ field: "order", direction: "asc" }],
-    },
-    {
-      title: "Name A-Z",
-      name: "nameAsc",
-      by: [{ field: "name", direction: "asc" }],
     },
   ],
   preview: {
