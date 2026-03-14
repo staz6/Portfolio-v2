@@ -343,12 +343,12 @@
 }
 
 /* Hero text reveal — pure CSS, compositor thread, no JS overhead */
-/* Initial state: hidden below mask. Class "hero-text-animate" triggers the animation via JS */
-.hero-text-reveal {
+/* JS adds .hero-hidden to start hidden, then .hero-text-animate triggers reveal */
+.hero-text-reveal.hero-hidden {
   transform: translateY(110%);
 }
 
-.hero-text-animate {
+.hero-text-reveal.hero-text-animate {
   animation: hero-text-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 

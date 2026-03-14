@@ -42,12 +42,12 @@ export function HeroTitle({ name = "Aahad" }: HeroTitleProps) {
         text={firstName}
         className="text-[18vw] md:text-[14vw] lg:text-[11vw]"
         charClassName="hero-char-shine"
-        baseDelay={0}
+        baseDelay={0.15}
       />
       <SplitReveal
         text={role}
         className="text-[11vw] md:text-[8vw] lg:text-[6.5vw]"
-        baseDelay={firstName.length * 0.04 + 0.08}
+        baseDelay={0.15 + firstName.length * 0.04 + 0.1}
         style={{
           WebkitTextStroke: "1.5px currentColor",
           WebkitTextFillColor: "transparent",

@@ -51,15 +51,19 @@ export function Hero({
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set(
         section.querySelectorAll(
-          "[data-hero-char], [data-hero-rotating], [data-hero-bio], [data-hero-stat], [data-hero-cta], [data-hero-social], [data-hero-scroll], [data-hero-badge], [data-hero-scene], [data-hero-location], [data-hero-marquee]",
+          "[data-hero-rotating], [data-hero-bio], [data-hero-stat], [data-hero-cta], [data-hero-social], [data-hero-scroll], [data-hero-badge], [data-hero-scene], [data-hero-location], [data-hero-marquee]",
         ),
         { opacity: 1, y: 0, x: 0, scale: 1 },
       );
       return;
     }
 
-    // Hide while preloader is up. Using visibility (not opacity) so
-    // gsap.from({ opacity: 0 }) targets remain correct.
+    // Hide text characters below mask until animation triggers
+    section.querySelectorAll<HTMLElement>(".hero-text-reveal").forEach((el) => {
+      el.classList.add("hero-hidden");
+    });
+
+    // Hide section while preloader is up
     gsap.set(section, { visibility: "hidden" });
 
     return () => {
@@ -133,8 +137,8 @@ export function Hero({
     const statsEls = section.querySelectorAll<HTMLElement>("[data-hero-stat]");
     const locationEl = section.querySelector<HTMLElement>("[data-hero-location]");
 
-    // Hint browser to pre-allocate compositing layer for clip-path
-    section.style.willChange = "clip-path";
+    // Hint browser to pre-allocate compositing layer for clip-path (desktop only)
+    if (!isMobile) section.style.willChange = "clip-path";
 
     // Single ScrollTrigger for all scroll effects (1 callback per frame)
     const trigger = ScrollTrigger.create({
@@ -145,14 +149,16 @@ export function Hero({
       onUpdate: (self) => {
         const p = self.progress;
 
-        // Trapezoid clip-path
-        const tlX = p * 20;
-        const trX = 100 - p * 25;
-        const brX = 100 - p * 5;
-        const blX = p * 2;
-        const blY = 100 - p * 12;
-        const brY = 100 - p * 4;
-        section.style.clipPath = `polygon(${tlX}% 0%, ${trX}% 0%, ${brX}% ${brY}%, ${blX}% ${blY}%)`;
+        // Trapezoid clip-path (desktop only — too expensive on mobile Safari)
+        if (!isMobile) {
+          const tlX = p * 20;
+          const trX = 100 - p * 25;
+          const brX = 100 - p * 5;
+          const blX = p * 2;
+          const blY = 100 - p * 12;
+          const brY = 100 - p * 4;
+          section.style.clipPath = `polygon(${tlX}% 0%, ${trX}% 0%, ${brX}% ${brY}%, ${blX}% ${blY}%)`;
+        }
 
         // Content fade + lift
         content.style.transform = `translate3d(0, ${p * -100}px, 0)`;
