@@ -41,7 +41,7 @@ export function Hero({
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Master entrance timeline — waits for preloader to finish
-  const entranceTl = useRef<gsap.core.Timeline>();
+  const entranceTl = useRef<gsap.core.Timeline>(undefined);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -74,27 +74,29 @@ export function Hero({
 
     gsap.set(section, { visibility: "visible" });
 
+    // Trigger text CSS animations by adding the animate class
+    requestAnimationFrame(() => {
+      section.querySelectorAll<HTMLElement>(".hero-text-reveal").forEach((el) => {
+        el.classList.add("hero-text-animate");
+      });
+    });
+
     const tl = gsap.timeline({
-      defaults: { ease: "power4.out", duration: 0.8 },
+      defaults: { ease: "power4.out", duration: 0.8, force3D: true },
     });
     entranceTl.current = tl;
 
-    // 1. Badge
+    // 1. Badge (starts same time as text)
     tl.from("[data-hero-badge]", { y: 20, opacity: 0, duration: 0.5 });
 
-    // 2. 3D scene fades in
-    tl.from("[data-hero-scene]", { opacity: 0, duration: 1.5, ease: "power2.inOut" }, "-=0.3");
-
-    // 3. Name characters — slide up from mask
-    tl.from(section.querySelectorAll("[data-hero-char]"), {
-      y: "110%", duration: 1, ease: "power4.out", stagger: 0.03,
-    }, "-=1.2");
+    // 3. 3D scene fades in (give text 0.8s head start)
+    tl.from("[data-hero-scene]", { opacity: 0, duration: 1.2, ease: "power2.inOut" }, "+=0.5");
 
     // 4. Rotating title
-    tl.from("[data-hero-rotating]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.5");
+    tl.from("[data-hero-rotating]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.8");
 
     // 5. Tech marquee
-    tl.from("[data-hero-marquee]", { opacity: 0, duration: 0.6 }, "-=0.3");
+    tl.from("[data-hero-marquee]", { opacity: 0, duration: 0.6 }, "-=0.5");
 
     // 6. Bio + Stats (bottom row)
     tl.from("[data-hero-bio]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.3");
@@ -124,78 +126,63 @@ export function Hero({
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const isMobile = window.innerWidth < 1024;
-    const triggers: ScrollTrigger[] = [];
 
-    // Bravild-style polygon clip + content fade/lift
-    triggers.push(
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: isMobile ? 1.5 : 0.3,
-        onUpdate: (self) => {
-          const p = self.progress;
-          const tlX = p * 20;
-          const trX = 100 - p * 25;
-          const brX = 100 - p * 5;
-          const blX = p * 2;
-          const blY = 100 - p * 12;
-          const brY = 100 - p * 4;
-          section.style.clipPath = `polygon(${tlX}% 0%, ${trX}% 0%, ${brX}% ${brY}%, ${blX}% ${blY}%)`;
-          gsap.set(content, {
-            y: p * -100,
-            opacity: 1 - p * 0.6,
-          });
-        },
-      }),
-    );
+    // Cache DOM references once
+    const badge = section.querySelector<HTMLElement>("[data-hero-badge]");
+    const rotating = section.querySelector<HTMLElement>("[data-hero-rotating]");
+    const statsEls = section.querySelectorAll<HTMLElement>("[data-hero-stat]");
+    const locationEl = section.querySelector<HTMLElement>("[data-hero-location]");
 
+    // Hint browser to pre-allocate compositing layer for clip-path
+    section.style.willChange = "clip-path";
 
-    // Badge + rotating text fade out (combined)
-    const badge = section.querySelector("[data-hero-badge]");
-    const rotating = section.querySelector("[data-hero-rotating]");
-    if (badge || rotating) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "40% top",
-          scrub: isMobile ? 1 : 0.3,
-          onUpdate: (self) => {
-            const p = self.progress;
-            if (badge) {
-              const badgeP = Math.min(p / 0.75, 1);
-              gsap.set(badge, { opacity: 1 - badgeP, y: badgeP * -30 });
-            }
-            if (rotating) {
-              gsap.set(rotating, { opacity: 1 - p, y: p * -20 });
-            }
-          },
-        }),
-      );
-    }
+    // Single ScrollTrigger for all scroll effects (1 callback per frame)
+    const trigger = ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: "bottom top",
+      scrub: isMobile ? 1.5 : 0.5,
+      onUpdate: (self) => {
+        const p = self.progress;
 
-    // Stats + location parallax (combined)
-    const statsEls = section.querySelectorAll("[data-hero-stat]");
-    const locationEl = section.querySelector("[data-hero-location]");
-    if (statsEls.length || locationEl) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: isMobile ? 1.5 : 0.5,
-          onUpdate: (self) => {
-            const p = self.progress;
-            if (statsEls.length) gsap.set(statsEls, { y: p * -40 });
-            if (locationEl) gsap.set(locationEl, { scale: 1 - p * 0.15, y: p * -20 });
-          },
-        }),
-      );
-    }
+        // Trapezoid clip-path
+        const tlX = p * 20;
+        const trX = 100 - p * 25;
+        const brX = 100 - p * 5;
+        const blX = p * 2;
+        const blY = 100 - p * 12;
+        const brY = 100 - p * 4;
+        section.style.clipPath = `polygon(${tlX}% 0%, ${trX}% 0%, ${brX}% ${brY}%, ${blX}% ${blY}%)`;
+
+        // Content fade + lift
+        content.style.transform = `translate3d(0, ${p * -100}px, 0)`;
+        content.style.opacity = String(1 - p * 0.6);
+
+        // Badge + rotating text fade
+        if (badge) {
+          const badgeP = Math.min(p * 2.5, 1);
+          badge.style.transform = `translate3d(0, ${badgeP * -30}px, 0)`;
+          badge.style.opacity = String(1 - badgeP);
+        }
+        if (rotating) {
+          rotating.style.transform = `translate3d(0, ${p * -20}px, 0)`;
+          rotating.style.opacity = String(1 - p);
+        }
+
+        // Stats + location parallax
+        statsEls.forEach((el) => {
+          el.style.transform = `translate3d(0, ${p * -40}px, 0)`;
+        });
+        if (locationEl) {
+          locationEl.style.transform = `translate3d(0, ${p * -20}px, 0) scale(${1 - p * 0.15})`;
+        }
+      },
+    });
 
     return () => {
-      triggers.forEach((t) => t.kill());
+      trigger.kill();
+      section.style.willChange = "";
+      section.style.clipPath = "";
     };
   }, []);
 
