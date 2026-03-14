@@ -184,14 +184,14 @@ function ProjectOverlay({
         animate="visible"
         exit="exit"
         onClick={(e) => e.stopPropagation()}
-        className="relative z-10 grid max-h-[90vh] w-full max-w-6xl grid-cols-1 overflow-hidden rounded-3xl border border-border/30 bg-card shadow-2xl lg:grid-cols-[1.2fr_1fr]"
+        className="relative z-10 grid max-h-[90vh] w-full max-w-6xl grid-cols-1 overflow-y-auto rounded-3xl border border-border/30 bg-card shadow-2xl lg:grid-cols-[1.2fr_1fr] lg:overflow-hidden"
       >
         {/* Image — fills full height of left column */}
         <motion.div
           variants={imageVariants}
           initial="hidden"
           animate="visible"
-          className="relative h-full min-h-[250px] overflow-hidden"
+          className="relative h-[300px] overflow-hidden lg:h-full lg:min-h-[250px]"
         >
           <img
             src={project.thumbnail}

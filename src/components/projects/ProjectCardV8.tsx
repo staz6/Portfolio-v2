@@ -183,20 +183,20 @@ function ProjectOverlayV8({ project, onClose }: { project: ProjectData; onClose:
         exit={{ y: 30, opacity: 0, scale: 0.97 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
         onClick={(e) => e.stopPropagation()}
-        className="relative z-10 grid max-h-[90vh] w-full max-w-6xl grid-cols-1 items-center overflow-hidden rounded-3xl border border-border/30 bg-card shadow-2xl lg:grid-cols-[1.2fr_1fr]"
+        className="relative z-10 grid max-h-[90vh] w-full max-w-6xl grid-cols-1 overflow-y-auto rounded-3xl border border-border/30 bg-card shadow-2xl lg:grid-cols-[1.2fr_1fr] lg:items-center lg:overflow-hidden"
       >
         {/* Image */}
         <motion.div
           initial={{ x: -40, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] as const }}
-          className="overflow-y-auto bg-black/30 p-6 lg:p-8"
+          className="overflow-y-auto p-6 lg:p-8"
           style={{ maxHeight: "90vh" }}
         >
           <img
             src={project.thumbnail}
             alt={project.name}
-            className="w-full rounded-xl object-cover object-top shadow-2xl shadow-black/30"
+            className="h-[300px] w-full rounded-xl object-cover object-top  lg:h-auto"
           />
         </motion.div>
 
