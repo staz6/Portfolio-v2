@@ -336,6 +336,47 @@
   will-change: transform;
 }
 
+/* Reverse marquee for review cards row 2 */
+@keyframes marquee-reverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+/* Review card animated border shimmer */
+@property --review-glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.review-card-glow {
+  position: relative;
+}
+
+.review-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--review-glow-angle, 0deg), transparent 60%, var(--primary) 80%, transparent 100%);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.review-card-glow:hover::before {
+  opacity: 1;
+  animation: review-glow-spin 3s linear infinite;
+}
+
+@keyframes review-glow-spin {
+  to { --review-glow-angle: 360deg; }
+}
+
 /* Force GPU compositing layer on hero for smooth GSAP animations */
 .noise-overlay {
   will-change: transform;

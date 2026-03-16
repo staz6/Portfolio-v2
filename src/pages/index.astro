@@ -4,6 +4,7 @@ import { Hero } from "../components/hero/Hero";
 import { About } from "../components/about/About";
 import { Projects } from "../components/projects/Projects";
 import { Experience } from "../components/experience/Experience";
+import { Reviews } from "../components/reviews/Reviews";
 import { Contact } from "../components/contact/Contact";
 
 import { loadQuery } from "../sanity/lib/load-query";
@@ -99,6 +100,8 @@ const reviewsData = reviews?.length ? mapReviews(reviews) : [];
     <Projects client:visible projects={projectsData} />
 
     <Experience client:idle experiences={experiencesData} />
+
+    <Reviews client:idle reviews={reviewsData} />
 
     <Contact
       client:idle
