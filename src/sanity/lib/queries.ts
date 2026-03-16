@@ -47,14 +47,12 @@ export const PROJECTS_QUERY = `
 `;
 
 export const EXPERIENCES_QUERY = `
-  *[_type == "experience"] | order(order asc){
+  *[_type == "experience"] | order(startDate desc){
     companyName,
     position,
     startDate,
     endDate,
-    isCurrent,
-    highlights,
-    order
+    highlights
   }
 `;
 

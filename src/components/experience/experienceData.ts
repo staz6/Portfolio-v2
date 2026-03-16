@@ -5,6 +5,5 @@ export interface ExperienceData {
   endDate: string | null;
   isCurrent: boolean;
   highlights: string[];
-  order: number;
   year: string;
 }

@@ -38,7 +38,7 @@ export function useExperienceAnimations() {
     return () => { trigger.kill(); tl.kill(); };
   }, []);
 
-  // ── 2. List items staggered entrance (single trigger, like projects) ──
+  // ── 2. Batched item entrance (one listener, staggered) ───────
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
@@ -46,27 +46,29 @@ export function useExperienceAnimations() {
     const items = section.querySelectorAll("[data-exp-item]");
     if (!items.length) return;
 
-    gsap.set(items, { y: 80, opacity: 0 });
+    gsap.set(items, { y: 60, opacity: 0 });
 
-    const trigger = ScrollTrigger.create({
-      trigger: section.querySelector("[data-exp-list]"),
-      start: "top 70%",
+    const batch = ScrollTrigger.batch(items, {
+      start: "top 85%",
       once: true,
-      onEnter: () => {
-        gsap.to(items, {
+      onEnter: (batch) => {
+        gsap.to(batch, {
           y: 0,
           opacity: 1,
           duration: 1,
-          stagger: 0.12,
+          stagger: 0.15,
           ease: "power4.out",
+          force3D: true,
         });
       },
     });
 
-    return () => trigger.kill();
+    return () => {
+      if (Array.isArray(batch)) batch.forEach((t) => t.kill());
+    };
   }, []);
 
-  // ── 3. Heading parallax drift ───────────────────────────────
+  // ── 3. Heading parallax drift ────────────────────────────────
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;

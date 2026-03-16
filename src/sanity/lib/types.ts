@@ -44,9 +44,7 @@ export interface SanityExperience {
   position: string;
   startDate: string;
   endDate: string | null;
-  isCurrent: boolean;
   highlights: string[] | null;
-  order: number;
 }
 
 export interface SanityService {

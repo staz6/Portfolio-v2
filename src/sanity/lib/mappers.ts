@@ -113,7 +113,6 @@ export interface ExperienceProps {
   endDate: string | null;
   isCurrent: boolean;
   highlights: string[];
-  order: number;
   year: string;
 }
 
@@ -128,9 +127,8 @@ export function mapExperiences(experiences: SanityExperience[]): ExperienceProps
     position: e.position,
     startDate: formatDate(e.startDate),
     endDate: e.endDate ? formatDate(e.endDate) : null,
-    isCurrent: e.isCurrent,
+    isCurrent: !e.endDate,
     highlights: e.highlights ?? [],
-    order: e.order,
     year: new Date(e.startDate + "T00:00:00").getFullYear().toString(),
   }));
 }

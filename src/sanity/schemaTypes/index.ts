@@ -7,7 +7,6 @@ import footerSettings from "./footerSettings";
 import seoSettings from "./seoSettings";
 import project from "./project";
 import experience from "./experience";
-import skill from "./skill";
 import service from "./service";
 import review from "./review";
 
@@ -20,7 +19,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     seoSettings,
     project,
     experience,
-    skill,
     service,
     review,
   ],

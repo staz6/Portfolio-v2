@@ -30,30 +30,18 @@ export default defineType({
       description: "Leave empty if this is your current position.",
     }),
     defineField({
-      name: "isCurrent",
-      title: "Current Position",
-      type: "boolean",
-      initialValue: false,
-    }),
-    defineField({
       name: "highlights",
       title: "Key Highlights",
       type: "array",
       of: [{ type: "string" }],
       description: "Bullet points describing your accomplishments.",
     }),
-    defineField({
-      name: "order",
-      title: "Display Order",
-      type: "number",
-      description: "Lower numbers appear first.",
-    }),
   ],
   orderings: [
     {
-      title: "Display Order",
-      name: "orderAsc",
-      by: [{ field: "order", direction: "asc" }],
+      title: "Start Date (Newest First)",
+      name: "startDateDesc",
+      by: [{ field: "startDate", direction: "desc" }],
     },
   ],
   preview: {
