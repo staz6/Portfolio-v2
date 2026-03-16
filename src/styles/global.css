@@ -336,29 +336,64 @@
   will-change: transform;
 }
 
-/* Film grain noise overlay */
-.noise-overlay::before {
-  content: "";
-  position: absolute;
-  inset: -50%;
-  width: 200%;
-  height: 200%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size: 256px 256px;
-  opacity: 0.035;
-  pointer-events: none;
-  animation: grain 8s steps(10) infinite;
+/* Reverse marquee for review cards row 2 */
+@keyframes marquee-reverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
 }
 
-@keyframes grain {
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-5%, -10%); }
-  20% { transform: translate(-15%, 5%); }
-  30% { transform: translate(7%, -25%); }
-  40% { transform: translate(-5%, 25%); }
-  50% { transform: translate(-15%, 10%); }
-  60% { transform: translate(15%, 0%); }
-  70% { transform: translate(0%, 15%); }
-  80% { transform: translate(3%, 35%); }
-  90% { transform: translate(-10%, 10%); }
+/* Review card animated border shimmer */
+@property --review-glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.review-card-glow {
+  position: relative;
+}
+
+.review-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--review-glow-angle, 0deg), transparent 60%, var(--primary) 80%, transparent 100%);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.review-card-glow:hover::before {
+  opacity: 1;
+  animation: review-glow-spin 3s linear infinite;
+}
+
+@keyframes review-glow-spin {
+  to { --review-glow-angle: 360deg; }
+}
+
+/* Force GPU compositing layer on hero for smooth GSAP animations */
+.noise-overlay {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Hero text reveal — pure CSS, compositor thread, no JS overhead */
+/* JS adds .hero-hidden to start hidden, then .hero-text-animate triggers reveal */
+.hero-text-reveal.hero-hidden {
+  transform: translateY(110%);
+}
+
+.hero-text-reveal.hero-text-animate {
+  animation: hero-text-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes hero-text-up {
+  from { transform: translateY(110%); }
+  to { transform: translateY(0%); }
 }

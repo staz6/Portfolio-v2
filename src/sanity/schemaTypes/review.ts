@@ -7,27 +7,26 @@ export default defineType({
   fields: [
     defineField({
       name: "name",
-      title: "Reviewer Name",
+      title: "Client Name",
       type: "string",
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "role",
-      title: "Reviewer Role / Background",
+      title: "Client Role / Title",
       type: "string",
-      description:
-        "The reviewer's title or company (e.g., 'CEO at TechCorp').",
+      description: "e.g., 'CEO at TechCorp'",
     }),
     defineField({
       name: "testimonial",
       title: "Testimonial",
       type: "text",
-      rows: 5,
+      rows: 4,
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "avatar",
-      title: "Reviewer Photo",
+      title: "Avatar",
       type: "image",
       options: { hotspot: true },
     }),
@@ -42,6 +41,7 @@ export default defineType({
       name: "order",
       title: "Display Order",
       type: "number",
+      description: "Lower numbers appear first.",
     }),
   ],
   orderings: [

@@ -1,28 +1,27 @@
 interface HeroTitleProps {
   name?: string;
-  role?: string;
 }
 
-function SplitText({
+function SplitReveal({
   text,
   className,
   charClassName,
+  baseDelay = 0,
   style,
-  ...rest
 }: {
   text: string;
   className?: string;
   charClassName?: string;
+  baseDelay?: number;
   style?: React.CSSProperties;
-  [key: string]: unknown;
 }) {
   return (
-    <span className={className} style={style} {...rest}>
+    <span className={`block ${className || ""}`} style={style}>
       {text.split("").map((char, i) => (
         <span key={i} className="inline-block overflow-hidden">
           <span
-            className={`inline-block ${charClassName || ""}`}
-            data-hero-char
+            className={`hero-text-reveal inline-block ${charClassName || ""}`}
+            style={{ animationDelay: `${baseDelay + i * 0.04}s` }}
           >
             {char === " " ? "\u00A0" : char}
           </span>
@@ -32,22 +31,23 @@ function SplitText({
   );
 }
 
-export function HeroTitle({
-  name = "Aahad",
-  role = "Developer",
-}: HeroTitleProps) {
+export function HeroTitle({ name = "Aahad" }: HeroTitleProps) {
+  const parts = name.split(" ");
+  const firstName = parts[0];
+  const role = "Developer";
+
   return (
     <h1 className="font-heading font-bold uppercase leading-[0.85] tracking-tighter">
-      <SplitText
-        data-hero-name
-        text={name}
-        className="block will-change-transform text-[18vw] md:text-[14vw] lg:text-[11vw]"
+      <SplitReveal
+        text={firstName}
+        className="text-[18vw] md:text-[14vw] lg:text-[11vw]"
         charClassName="hero-char-shine"
+        baseDelay={0.15}
       />
-      <SplitText
-        data-hero-role
+      <SplitReveal
         text={role}
-        className="block will-change-transform text-[11vw] md:text-[8vw] lg:text-[6.5vw]"
+        className="text-[11vw] md:text-[8vw] lg:text-[6.5vw]"
+        baseDelay={0.15 + firstName.length * 0.04 + 0.1}
         style={{
           WebkitTextStroke: "1.5px currentColor",
           WebkitTextFillColor: "transparent",

@@ -38,7 +38,7 @@ export function useProjectsAnimations() {
     return () => { trigger.kill(); tl.kill(); };
   }, []);
 
-  // ── 2. List items staggered entrance ──────────────────────────
+  // ── 2. Cards staggered entrance — each card animates in individually ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
@@ -46,24 +46,29 @@ export function useProjectsAnimations() {
     const items = section.querySelectorAll("[data-project-item]");
     if (!items.length) return;
 
-    gsap.set(items, { y: 80, opacity: 0 });
+    // Initial state: cards are invisible and shifted down + slightly scaled
+    gsap.set(items, { y: 100, opacity: 0, scale: 0.95 });
 
-    const trigger = ScrollTrigger.create({
-      trigger: section.querySelector("[data-project-list]"),
-      start: "top 70%",
-      once: true,
-      onEnter: () => {
-        gsap.to(items, {
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          stagger: 0.12,
-          ease: "power4.out",
-        });
-      },
+    // Each card triggers its own entrance when it enters the viewport
+    items.forEach((item, i) => {
+      ScrollTrigger.create({
+        trigger: item,
+        start: "top 85%",
+        once: true,
+        onEnter: () => {
+          gsap.to(item, {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 1,
+            delay: (i % 2) * 0.15, // stagger left/right columns
+            ease: "power3.out",
+          });
+        },
+      });
     });
 
-    return () => trigger.kill();
+    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
   }, []);
 
   // ── 3. Heading parallax drift ─────────────────────────────────

@@ -1,31 +1,143 @@
-import { useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ExperienceHeading } from "./ExperienceHeading";
 import { useExperienceAnimations } from "./useExperienceAnimations";
-import { EXPERIENCES } from "./experienceData";
 import type { ExperienceData } from "./experienceData";
 
-export function Experience() {
+gsap.registerPlugin(ScrollTrigger);
+
+interface ExperienceProps {
+  experiences?: ExperienceData[];
+}
+
+export function Experience({ experiences = [] }: ExperienceProps) {
   const sectionRef = useExperienceAnimations();
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [mobileExpanded, setMobileExpanded] = useState<number | null>(null);
-  const hoverTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const stackRef = useRef<HTMLDivElement>(null);
 
-  const handleEnter = useCallback((i: number) => {
-    clearTimeout(hoverTimeout.current);
-    setHoveredIndex(i);
-  }, []);
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    const stack = stackRef.current;
+    if (!wrapper || !stack) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const handleLeave = useCallback(() => {
-    clearTimeout(hoverTimeout.current);
-    hoverTimeout.current = setTimeout(() => setHoveredIndex(null), 100);
-  }, []);
+    const panels = stack.querySelectorAll<HTMLElement>("[data-exp-panel]");
+    const count = panels.length;
+    if (!count) return;
 
-  const handleClick = useCallback((i: number) => {
-    if (window.matchMedia("(max-width: 1023px)").matches) {
-      setMobileExpanded((prev) => (prev === i ? null : i));
-    }
-  }, []);
+    // Collect sub-elements for split animation
+    const bgs = stack.querySelectorAll<HTMLElement>("[data-exp-bg]");
+    const lefts = stack.querySelectorAll<HTMLElement>("[data-exp-left]");
+    const rights = stack.querySelectorAll<HTMLElement>("[data-exp-right]");
+
+    // Hide all panels except first
+    panels.forEach((panel, i) => {
+      if (i > 0) gsap.set(panel, { visibility: "hidden", force3D: true });
+    });
+
+    // 2x viewport per panel — enough room to see animations play
+    const perPanel = window.innerHeight * 1.5;
+    const totalDistance = count * perPanel;
+
+    // Snap to the START of each panel (where hold phase begins)
+    // Each panel occupies 1/count of total progress
+    const snapPoints = Array.from({ length: count }, (_, i) => i / count);
+
+    const trigger = ScrollTrigger.create({
+      trigger: wrapper,
+      start: "top top",
+      end: () => `+=${totalDistance}`,
+      pin: stack,
+      scrub: 1,
+      snap: {
+        snapTo: snapPoints,
+        duration: { min: 0.8, max: 1.4 },
+        delay: 0.1,
+        ease: "power3.inOut",
+      },
+      onUpdate: (self) => {
+        const totalP = self.progress * count;
+        const activeIndex = Math.min(Math.floor(totalP), count - 1);
+        const localP = totalP - activeIndex;
+
+        const easeOut = (t: number) => 1 - (1 - t) * (1 - t) * (1 - t);
+        const easeIn = (t: number) => t * t * t;
+
+        panels.forEach((panel, i) => {
+          const bg = bgs[i];
+          const left = lefts[i];
+          const right = rights[i];
+
+          if (i === activeIndex) {
+            // Hold: 0–0.55 | Exit: 0.55–0.72 | Gone: 0.72–1.0
+
+            if (localP <= 0.55) {
+              // Long hold — content is readable, subtle bg drift
+              const bgScale = 1 + localP * 0.03;
+              gsap.set(panel, { visibility: "visible", zIndex: 2, force3D: true });
+              if (left) gsap.set(left, { opacity: 1, x: 0, y: 0, scale: 1, force3D: true });
+              if (right) gsap.set(right, { opacity: 1, x: 0, y: 0, scale: 1, force3D: true });
+              if (bg) gsap.set(bg, { scale: bgScale, opacity: 1, rotate: 0, force3D: true });
+            } else if (localP <= 0.72 && i < count - 1) {
+              // Exit — dramatic split, content flies apart
+              const exitP = easeIn((localP - 0.55) / 0.17);
+              gsap.set(panel, { visibility: "visible", zIndex: 2, force3D: true });
+              if (left) gsap.set(left, {
+                opacity: 1 - exitP, x: -100 * exitP, y: -50 * exitP,
+                scale: 1 - exitP * 0.08, force3D: true,
+              });
+              if (right) gsap.set(right, {
+                opacity: 1 - exitP, x: 70 * exitP, y: 30 * exitP,
+                scale: 1 - exitP * 0.04, force3D: true,
+              });
+              if (bg) gsap.set(bg, {
+                scale: 1.02 + exitP * 0.15, opacity: 1 - exitP,
+                rotate: exitP * -1.5, force3D: true,
+              });
+            } else if (i < count - 1) {
+              // Fully gone
+              gsap.set(panel, { visibility: "hidden", zIndex: 0, force3D: true });
+            } else {
+              // Last panel stays
+              gsap.set(panel, { visibility: "visible", zIndex: 2, force3D: true });
+              if (left) gsap.set(left, { opacity: 1, x: 0, y: 0, scale: 1, force3D: true });
+              if (right) gsap.set(right, { opacity: 1, x: 0, y: 0, scale: 1, force3D: true });
+              if (bg) gsap.set(bg, { scale: 1, opacity: 1, rotate: 0, force3D: true });
+            }
+
+          } else if (i === activeIndex + 1) {
+            // Enter: 0.72–0.95 (starts immediately after exit ends)
+            const enterRaw = localP > 0.72 ? Math.min((localP - 0.72) / 0.23, 1) : 0;
+            const enterP = easeOut(enterRaw);
+
+            gsap.set(panel, {
+              visibility: enterRaw > 0 ? "visible" : "hidden",
+              zIndex: enterRaw > 0 ? 2 : 0,
+              force3D: true,
+            });
+            if (left) gsap.set(left, {
+              opacity: enterP, x: 60 * (1 - enterP), y: 30 * (1 - enterP),
+              scale: 0.95 + 0.05 * enterP, force3D: true,
+            });
+            if (right) gsap.set(right, {
+              opacity: enterP, x: -50 * (1 - enterP), y: -20 * (1 - enterP),
+              scale: 0.92 + 0.08 * enterP, force3D: true,
+            });
+            if (bg) gsap.set(bg, {
+              scale: 0.92 + 0.08 * enterP, opacity: enterP,
+              rotate: 2 * (1 - enterP), force3D: true,
+            });
+
+          } else {
+            gsap.set(panel, { visibility: "hidden", zIndex: 0, force3D: true });
+          }
+        });
+      },
+    });
+
+    return () => trigger.kill();
+  }, [experiences]);
 
   return (
     <section
@@ -34,203 +146,105 @@ export function Experience() {
       className="relative overflow-hidden bg-background"
     >
       {/* Heading */}
-      <div className="relative z-10 mx-auto max-w-7xl px-6 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-40">
+      <div className="relative z-10 mx-auto max-w-7xl px-6 pt-24 lg:px-10 lg:pt-40">
         <ExperienceHeading />
       </div>
 
-      {/* Experience rows */}
-      <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 lg:px-10">
-        <div data-exp-list className="border-t border-border/40">
-          {EXPERIENCES.map((exp, i) => (
-            <ExperienceRow
+      {/* Experience panels — stacked, single pin */}
+      <div ref={wrapperRef} className="relative z-10 mt-10">
+        <div ref={stackRef} className="relative min-h-screen">
+          {experiences.map((exp, i) => (
+            <div
               key={exp.companyName}
-              experience={exp}
-              index={i}
-              isHovered={hoveredIndex === i}
-              isMobileExpanded={mobileExpanded === i}
-              onHoverStart={handleEnter}
-              onHoverEnd={handleLeave}
-              onClick={handleClick}
-            />
+              data-exp-panel
+              data-exp-item={i}
+              className="absolute inset-0 flex min-h-screen items-center overflow-hidden"
+            >
+            {/* Giant background company name */}
+            <div
+              data-exp-bg
+              className="pointer-events-none absolute inset-0 flex items-center justify-center will-change-transform select-none"
+            >
+              <span className="whitespace-nowrap font-heading text-[18vw] font-black uppercase leading-none text-foreground/[0.03] md:text-[14vw]">
+                {exp.companyName}
+              </span>
+            </div>
+
+            {/* Content — split layout */}
+            <div
+              data-exp-content
+              className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 will-change-transform lg:flex-row lg:items-start lg:gap-20 lg:px-10"
+            >
+              {/* Left — company info */}
+              <div data-exp-left className="flex flex-col gap-5 will-change-transform lg:w-2/5">
+                <div className="flex items-center gap-4">
+                  <span className="font-heading text-5xl font-black text-primary/20 lg:text-6xl">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div className="h-px flex-1 bg-primary/20" />
+                  <span className="font-heading text-sm font-semibold tracking-widest text-primary">
+                    {exp.year}
+                  </span>
+                </div>
+
+                <h3 className="font-heading text-5xl font-bold text-foreground md:text-6xl lg:text-7xl">
+                  {exp.companyName}
+                </h3>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="text-base font-medium uppercase tracking-widest text-muted-foreground">
+                    {exp.position}
+                  </span>
+                  {exp.isCurrent && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+                      Current
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-sm tracking-wider text-muted-foreground/60">
+                  {exp.startDate} — {exp.endDate ?? "Present"}
+                </p>
+
+                {i < experiences.length - 1 && (
+                  <div className="mt-6 flex items-center gap-3">
+                    <div className="h-px w-8 bg-gradient-to-r from-primary/40 to-transparent" />
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40">
+                      Scroll for next
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Right — highlights card */}
+              <div data-exp-right className="will-change-transform lg:w-3/5">
+                <div className="rounded-2xl border border-border/20 bg-card/80 p-6 lg:p-10">
+                  <p className="mb-6 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                    Key Contributions
+                  </p>
+
+                  <div className="space-y-5">
+                    {exp.highlights.map((h, j) => (
+                      <div key={j} className="flex items-start gap-4">
+                        <div className="mt-1 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+                          <span className="font-heading text-xs font-bold text-primary">
+                            {String(j + 1).padStart(2, "0")}
+                          </span>
+                        </div>
+                        <p className="text-base leading-relaxed text-foreground/80 lg:text-lg">
+                          {h}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           ))}
         </div>
       </div>
     </section>
-  );
-}
-
-function ExperienceRow({
-  experience,
-  index,
-  isHovered,
-  isMobileExpanded,
-  onHoverStart,
-  onHoverEnd,
-  onClick,
-}: {
-  experience: ExperienceData;
-  index: number;
-  isHovered: boolean;
-  isMobileExpanded: boolean;
-  onHoverStart: (i: number) => void;
-  onHoverEnd: () => void;
-  onClick: (i: number) => void;
-}) {
-  const handleMouseEnter = useCallback(() => {
-    onHoverStart(index);
-  }, [index, onHoverStart]);
-
-  const handleClick = useCallback(() => {
-    onClick(index);
-  }, [index, onClick]);
-
-  return (
-    <div
-      data-exp-item={index}
-      data-cursor-scale
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={onHoverEnd}
-      onClick={handleClick}
-      className="group relative border-b border-border/40 transition-colors hover:border-primary/40"
-    >
-      {/* ── Desktop ── */}
-      <div className="hidden lg:block">
-        <div className="relative py-12">
-          <div className="flex items-center justify-between">
-            {/* Left: year + company */}
-            <div className="flex items-baseline gap-10">
-              <span className="font-heading text-base font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-primary">
-                {experience.year}
-              </span>
-              <h3 className="font-heading text-7xl font-bold text-foreground transition-[translate,color] duration-300 group-hover:translate-x-2 group-hover:text-primary xl:text-8xl">
-                {experience.companyName}
-              </h3>
-            </div>
-
-            {/* Right: role + badge + arrow */}
-            <div className="flex items-center gap-6">
-              {experience.isCurrent && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-                  Current
-                </span>
-              )}
-              <span className="text-sm font-medium uppercase tracking-widest text-muted-foreground transition-colors duration-300 group-hover:text-foreground">
-                {experience.position}
-              </span>
-              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-border transition-all duration-300 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
-                <svg
-                  className="h-5 w-5 -rotate-45 transition-transform duration-300 group-hover:rotate-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Detail panel — CSS grid-rows for GPU-friendly height animation */}
-        <div
-          className="grid transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-          style={{
-            gridTemplateRows: isHovered ? "1fr" : "0fr",
-            opacity: isHovered ? 1 : 0,
-          }}
-        >
-          <div className="overflow-hidden">
-            <div className="rounded-b-2xl border-x border-b border-primary/20 bg-card px-10 pb-8 pt-6 shadow-xl shadow-primary/[0.03]">
-              <div className="grid grid-cols-[200px_1fr] gap-12">
-                {/* Left: date + position */}
-                <div>
-                  <p className="font-heading text-lg font-bold text-foreground">
-                    {experience.position}
-                  </p>
-                  <p className="mt-1.5 text-sm tracking-wider text-muted-foreground">
-                    {experience.startDate} — {experience.endDate ?? "Present"}
-                  </p>
-                </div>
-
-                {/* Right: highlights */}
-                <div className="space-y-3">
-                  {experience.highlights.map((h, j) => (
-                    <p
-                      key={j}
-                      className="flex items-start gap-3 text-base leading-relaxed text-foreground/80"
-                    >
-                      <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
-                      {h}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Mobile ── */}
-      <div className="lg:hidden">
-        <div className="flex items-center justify-between py-8">
-          <div className="flex items-baseline gap-4">
-            <span className="font-heading text-sm font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-primary">
-              {experience.year}
-            </span>
-            <h3 className="font-heading text-2xl font-bold text-foreground transition-colors duration-500 group-hover:text-primary sm:text-3xl md:text-5xl">
-              {experience.companyName}
-            </h3>
-          </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border transition-all duration-300 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
-            <svg
-              className={`h-4 w-4 transition-transform duration-300 ${isMobileExpanded ? "rotate-180" : ""}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
-
-        <p className="pb-4 text-sm font-medium text-muted-foreground">
-          {experience.position}
-          {experience.isCurrent && (
-            <span className="ml-2 inline-flex items-center gap-1 text-primary">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-              Current
-            </span>
-          )}
-        </p>
-
-        <AnimatePresence initial={false}>
-          {isMobileExpanded && (
-            <motion.div
-              key="mobile-details"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-              className="overflow-hidden"
-            >
-              <div className="space-y-3 pb-6">
-                <p className="text-xs tracking-wider text-muted-foreground/70">
-                  {experience.startDate} — {experience.endDate ?? "Present"}
-                </p>
-                {experience.highlights.map((h, j) => (
-                  <p key={j} className="flex items-start gap-2.5 text-sm leading-relaxed text-muted-foreground">
-                    <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary/50" />
-                    {h}
-                  </p>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
   );
 }

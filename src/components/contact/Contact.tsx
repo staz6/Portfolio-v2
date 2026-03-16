@@ -1,10 +1,14 @@
 import { useState, useCallback } from "react";
 import { useMagnetic } from "@/hooks/useMagnetic";
 import { useContactAnimations } from "./useContactAnimations";
-import { CONTACT_EMAIL, SOCIAL_LINKS } from "./contactData";
-import type { SocialLink } from "./contactData";
+import type { ContactSocialLink } from "@/sanity/lib/mappers";
 
 type FormState = "idle" | "sending" | "sent";
+
+interface ContactProps {
+  socialLinks?: ContactSocialLink[];
+  footerText?: string | null;
+}
 
 function useFormSubmit() {
   const [formState, setFormState] = useState<FormState>("idle");
@@ -24,7 +28,7 @@ function useFormSubmit() {
   return { formState, handleSubmit };
 }
 
-export function Contact() {
+export function Contact({ socialLinks = [], footerText }: ContactProps) {
   const sectionRef = useContactAnimations();
 
   return (
@@ -59,24 +63,9 @@ export function Contact() {
               {/* Rotating badge */}
               <RotatingBadge />
 
-              {/* Email */}
-              <div data-contact-reveal className="flex flex-col items-center gap-5 lg:items-end">
-                <span className="text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">
-                  Get in touch
-                </span>
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  data-cursor-scale
-                  className="hero-char-shine font-heading text-2xl font-bold tracking-tight text-foreground transition-colors duration-300 hover:text-primary sm:text-3xl lg:text-4xl"
-                >
-                  {CONTACT_EMAIL}
-                </a>
-                <CopyEmailButton />
-              </div>
-
               {/* Socials */}
               <div data-contact-reveal className="flex items-center gap-4">
-                {SOCIAL_LINKS.map((link) => (
+                {socialLinks.map((link) => (
                   <SocialIcon key={link.label} link={link} />
                 ))}
               </div>
@@ -89,7 +78,7 @@ export function Contact() {
             className="mt-20 flex flex-col items-center justify-between gap-4 border-t border-border/40 pb-8 pt-8 text-sm text-muted-foreground md:flex-row lg:mt-32"
           >
             <p>&copy; {new Date().getFullYear()} Aahad. All rights reserved.</p>
-            <p className="text-xs tracking-widest">Crafted with passion & precision</p>
+            <p className="text-xs tracking-widest">{footerText || "Crafted with passion & precision"}</p>
           </div>
         </div>
       </div>
@@ -162,12 +151,11 @@ function Marquee() {
 /* ── Rotating Badge ─────────────────────────────────────────── */
 
 function RotatingBadge() {
-  const magneticRef = useMagnetic<HTMLAnchorElement>({ strength: 0.25 });
+  const magneticRef = useMagnetic<HTMLDivElement>({ strength: 0.25 });
 
   return (
-    <a
+    <div
       ref={magneticRef}
-      href={`mailto:${CONTACT_EMAIL}`}
       data-cursor-scale
       className="group relative flex h-44 w-44 flex-shrink-0 items-center justify-center lg:h-56 lg:w-56"
     >
@@ -204,7 +192,7 @@ function RotatingBadge() {
           />
         </svg>
       </div>
-    </a>
+    </div>
   );
 }
 
@@ -305,43 +293,6 @@ function SubmitButton({ formState }: { formState: FormState }) {
   );
 }
 
-/* ── Copy Email Button ──────────────────────────────────────── */
-
-function CopyEmailButton() {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(CONTACT_EMAIL).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }, []);
-
-  return (
-    <button
-      onClick={handleCopy}
-      data-cursor-scale
-      className="flex items-center gap-2 rounded-full border border-border/30 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-all duration-300 hover:border-primary/40 hover:text-primary"
-    >
-      {copied ? (
-        <>
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-          Copied!
-        </>
-      ) : (
-        <>
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-          Copy Email
-        </>
-      )}
-    </button>
-  );
-}
-
 /* ── Social Icon ────────────────────────────────────────────── */
 
 const SOCIAL_ICONS: Record<string, React.ReactNode> = {
@@ -355,19 +306,9 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
     </svg>
   ),
-  twitter: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  ),
-  dribbble: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-      <path d="M12 24C5.385 24 0 18.615 0 12S5.385 0 12 0s12 5.385 12 12-5.385 12-12 12zm10.12-10.358c-.35-.11-3.17-.953-6.384-.438 1.34 3.684 1.887 6.684 1.992 7.308a10.29 10.29 0 004.395-6.87zm-6.115 7.808c-.153-.9-.75-4.032-2.19-7.77l-.066.02c-5.79 2.015-7.86 6.025-8.04 6.4a10.161 10.161 0 006.29 2.166c1.42 0 2.77-.29 4-.816zm-11.62-2.58c.232-.4 3.045-5.055 8.332-6.765.135-.045.27-.084.405-.12-.26-.585-.54-1.167-.832-1.74C7.17 11.775 2.206 11.71 1.756 11.7l-.004.312c0 2.633.998 5.037 2.634 6.855zm-2.42-8.955c.46.008 4.683.026 9.477-1.248A66.413 66.413 0 008.25 3.945a10.24 10.24 0 00-6.29 5.968zM9.9 3.24c.93 1.32 2.13 3.07 3.12 5.11 3.194-1.196 4.543-3.01 4.706-3.246A10.19 10.19 0 0012 1.756c-.72 0-1.42.094-2.1.276zm8.88 2.853c-.2.27-1.668 2.165-4.974 3.5.24.49.47.985.68 1.485.075.18.15.36.22.53 3.41-.43 6.8.26 7.14.33-.02-2.225-.82-4.27-2.22-5.846z" />
-    </svg>
-  ),
 };
 
-function SocialIcon({ link }: { link: SocialLink }) {
+function SocialIcon({ link }: { link: ContactSocialLink }) {
   const magneticRef = useMagnetic<HTMLAnchorElement>({ strength: 0.4 });
 
   return (

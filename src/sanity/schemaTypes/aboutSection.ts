@@ -6,24 +6,34 @@ export default defineType({
   type: "document",
   fields: [
     defineField({
-      name: "heading",
-      title: "Heading",
-      type: "string",
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
       name: "description",
-      title: "Description",
-      type: "text",
-      rows: 6,
-      description: "The main about-me paragraph.",
+      title: "About — Description",
+      type: "array",
+      description: "Rich text description for the about section.",
       validation: (rule) => rule.required(),
+      of: [
+        {
+          type: "block",
+          styles: [{ title: "Normal", value: "normal" }],
+          lists: [
+            { title: "Bullet", value: "bullet" },
+            { title: "Numbered", value: "number" },
+          ],
+          marks: {
+            decorators: [
+              { title: "Bold", value: "strong" },
+              { title: "Italic", value: "em" },
+            ],
+          },
+        },
+      ],
     }),
     defineField({
       name: "checkmarks",
-      title: "Highlight Checkmarks",
+      title: "About — Skill Badges",
       type: "array",
-      description: "Short highlight items displayed with checkmark icons.",
+      description:
+        "The small pill-shaped badges below the description (e.g., 'Full Stack Development', 'UI/UX Design').",
       of: [
         {
           type: "object",
@@ -31,16 +41,9 @@ export default defineType({
           fields: [
             defineField({
               name: "text",
-              title: "Text",
+              title: "Badge Text",
               type: "string",
               validation: (rule) => rule.required(),
-            }),
-            defineField({
-              name: "bgColor",
-              title: "Background Color Class",
-              type: "string",
-              description:
-                "Tailwind background color class (e.g., 'bg-blue-800').",
             }),
           ],
           preview: {
@@ -51,6 +54,8 @@ export default defineType({
     }),
   ],
   preview: {
-    select: { title: "heading" },
+    prepare() {
+      return { title: "About Section" };
+    },
   },
 });

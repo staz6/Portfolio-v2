@@ -12,15 +12,36 @@ import { HeroCTA } from "./HeroCTA";
 import { HeroLocation } from "./HeroLocation";
 import { HeroMarquee } from "./HeroMarquee";
 import { HeroScene } from "./HeroScene";
+import type { HeroStat, HeroSocial } from "@/sanity/lib/mappers";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function Hero() {
+interface HeroProps {
+  name?: string;
+  title?: string;
+  bio?: string;
+  location?: string;
+  availability?: boolean;
+  stats?: HeroStat[];
+  socials?: HeroSocial[];
+  services?: string[];
+}
+
+export function Hero({
+  name,
+  title,
+  bio,
+  location,
+  availability,
+  stats,
+  socials,
+  services,
+}: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Master entrance timeline — waits for preloader to finish
-  const entranceTl = useRef<gsap.core.Timeline>();
+  const entranceTl = useRef<gsap.core.Timeline>(undefined);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -30,15 +51,19 @@ export function Hero() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set(
         section.querySelectorAll(
-          "[data-hero-char], [data-hero-rotating], [data-hero-bio], [data-hero-stat], [data-hero-cta], [data-hero-social], [data-hero-scroll], [data-hero-badge], [data-hero-scene], [data-hero-location], [data-hero-marquee]",
+          "[data-hero-rotating], [data-hero-bio], [data-hero-stat], [data-hero-cta], [data-hero-social], [data-hero-scroll], [data-hero-badge], [data-hero-scene], [data-hero-location], [data-hero-marquee]",
         ),
         { opacity: 1, y: 0, x: 0, scale: 1 },
       );
       return;
     }
 
-    // Hide while preloader is up. Using visibility (not opacity) so
-    // gsap.from({ opacity: 0 }) targets remain correct.
+    // Hide text characters below mask until animation triggers
+    section.querySelectorAll<HTMLElement>(".hero-text-reveal").forEach((el) => {
+      el.classList.add("hero-hidden");
+    });
+
+    // Hide section while preloader is up
     gsap.set(section, { visibility: "hidden" });
 
     return () => {
@@ -53,27 +78,29 @@ export function Hero() {
 
     gsap.set(section, { visibility: "visible" });
 
+    // Trigger text CSS animations by adding the animate class
+    requestAnimationFrame(() => {
+      section.querySelectorAll<HTMLElement>(".hero-text-reveal").forEach((el) => {
+        el.classList.add("hero-text-animate");
+      });
+    });
+
     const tl = gsap.timeline({
-      defaults: { ease: "power4.out", duration: 0.8 },
+      defaults: { ease: "power4.out", duration: 0.8, force3D: true },
     });
     entranceTl.current = tl;
 
-    // 1. Badge
+    // 1. Badge (starts same time as text)
     tl.from("[data-hero-badge]", { y: 20, opacity: 0, duration: 0.5 });
 
-    // 2. 3D scene fades in
-    tl.from("[data-hero-scene]", { opacity: 0, duration: 1.5, ease: "power2.inOut" }, "-=0.3");
-
-    // 3. Name characters — slide up from mask
-    tl.from(section.querySelectorAll("[data-hero-char]"), {
-      y: "110%", duration: 1, ease: "power4.out", stagger: 0.03,
-    }, "-=1.2");
+    // 3. 3D scene fades in (give text 0.8s head start)
+    tl.from("[data-hero-scene]", { opacity: 0, duration: 1.2, ease: "power2.inOut" }, "+=0.5");
 
     // 4. Rotating title
-    tl.from("[data-hero-rotating]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.5");
+    tl.from("[data-hero-rotating]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.8");
 
     // 5. Tech marquee
-    tl.from("[data-hero-marquee]", { opacity: 0, duration: 0.6 }, "-=0.3");
+    tl.from("[data-hero-marquee]", { opacity: 0, duration: 0.6 }, "-=0.5");
 
     // 6. Bio + Stats (bottom row)
     tl.from("[data-hero-bio]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.3");
@@ -103,17 +130,27 @@ export function Hero() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const isMobile = window.innerWidth < 1024;
-    const triggers: ScrollTrigger[] = [];
 
-    // Bravild-style polygon clip + content fade/lift
-    triggers.push(
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: isMobile ? 1.5 : 0.3,
-        onUpdate: (self) => {
-          const p = self.progress;
+    // Cache DOM references once
+    const badge = section.querySelector<HTMLElement>("[data-hero-badge]");
+    const rotating = section.querySelector<HTMLElement>("[data-hero-rotating]");
+    const statsEls = section.querySelectorAll<HTMLElement>("[data-hero-stat]");
+    const locationEl = section.querySelector<HTMLElement>("[data-hero-location]");
+
+    // Hint browser to pre-allocate compositing layer for clip-path (desktop only)
+    if (!isMobile) section.style.willChange = "clip-path";
+
+    // Single ScrollTrigger for all scroll effects (1 callback per frame)
+    const trigger = ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: "bottom top",
+      scrub: isMobile ? 1.5 : 0.5,
+      onUpdate: (self) => {
+        const p = self.progress;
+
+        // Trapezoid clip-path (desktop only — too expensive on mobile Safari)
+        if (!isMobile) {
           const tlX = p * 20;
           const trX = 100 - p * 25;
           const brX = 100 - p * 5;
@@ -121,60 +158,37 @@ export function Hero() {
           const blY = 100 - p * 12;
           const brY = 100 - p * 4;
           section.style.clipPath = `polygon(${tlX}% 0%, ${trX}% 0%, ${brX}% ${brY}%, ${blX}% ${blY}%)`;
-          gsap.set(content, {
-            y: p * -100,
-            opacity: 1 - p * 0.6,
-          });
-        },
-      }),
-    );
+        }
 
+        // Content fade + lift
+        content.style.transform = `translate3d(0, ${p * -100}px, 0)`;
+        content.style.opacity = String(1 - p * 0.6);
 
-    // Badge + rotating text fade out (combined)
-    const badge = section.querySelector("[data-hero-badge]");
-    const rotating = section.querySelector("[data-hero-rotating]");
-    if (badge || rotating) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "40% top",
-          scrub: isMobile ? 1 : 0.3,
-          onUpdate: (self) => {
-            const p = self.progress;
-            if (badge) {
-              const badgeP = Math.min(p / 0.75, 1);
-              gsap.set(badge, { opacity: 1 - badgeP, y: badgeP * -30 });
-            }
-            if (rotating) {
-              gsap.set(rotating, { opacity: 1 - p, y: p * -20 });
-            }
-          },
-        }),
-      );
-    }
+        // Badge + rotating text fade
+        if (badge) {
+          const badgeP = Math.min(p * 2.5, 1);
+          badge.style.transform = `translate3d(0, ${badgeP * -30}px, 0)`;
+          badge.style.opacity = String(1 - badgeP);
+        }
+        if (rotating) {
+          rotating.style.transform = `translate3d(0, ${p * -20}px, 0)`;
+          rotating.style.opacity = String(1 - p);
+        }
 
-    // Stats + location parallax (combined)
-    const statsEls = section.querySelectorAll("[data-hero-stat]");
-    const location = section.querySelector("[data-hero-location]");
-    if (statsEls.length || location) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: isMobile ? 1.5 : 0.5,
-          onUpdate: (self) => {
-            const p = self.progress;
-            if (statsEls.length) gsap.set(statsEls, { y: p * -40 });
-            if (location) gsap.set(location, { scale: 1 - p * 0.15, y: p * -20 });
-          },
-        }),
-      );
-    }
+        // Stats + location parallax
+        statsEls.forEach((el) => {
+          el.style.transform = `translate3d(0, ${p * -40}px, 0)`;
+        });
+        if (locationEl) {
+          locationEl.style.transform = `translate3d(0, ${p * -20}px, 0) scale(${1 - p * 0.15})`;
+        }
+      },
+    });
 
     return () => {
-      triggers.forEach((t) => t.kill());
+      trigger.kill();
+      section.style.willChange = "";
+      section.style.clipPath = "";
     };
   }, []);
 
@@ -202,33 +216,33 @@ export function Hero() {
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20">
               <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
             </span>
-            Available for work
+            {availability !== false ? "Available for work" : "Currently unavailable"}
           </span>
         </div>
 
         {/* Center — massive name */}
         <div className="flex flex-col gap-4">
-          <HeroTitle />
+          <HeroTitle name={name} />
           <RotatingText />
         </div>
 
         {/* Full-width tech marquee — breaks out of container */}
         <div className="relative left-1/2 w-screen -translate-x-1/2">
-          <HeroMarquee />
+          <HeroMarquee services={services} />
         </div>
 
         {/* Bottom — bio left, stats right */}
         <div className="flex flex-col justify-between gap-10 lg:flex-row lg:items-end">
           <div className="flex flex-col gap-6">
-            <HeroBio />
+            <HeroBio bio={bio} />
             <div className="flex items-center gap-6">
               <HeroCTA />
-              <HeroSocials />
+              <HeroSocials socials={socials} />
             </div>
           </div>
           <div className="flex flex-col items-start gap-6 lg:items-end">
-            <HeroStats />
-            <HeroLocation />
+            <HeroStats stats={stats} />
+            <HeroLocation location={location} />
           </div>
         </div>
       </div>

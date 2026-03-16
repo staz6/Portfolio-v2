@@ -1,32 +1,14 @@
-import { useState, useCallback, useRef } from "react";
 import { ProjectsHeading } from "./ProjectsHeading";
-import { ProjectItem } from "./ProjectItem";
+import { ProjectCard } from "./ProjectCard";
 import { useProjectsAnimations } from "./useProjectsAnimations";
-import { useProjectsBgTransition } from "./useProjectsBgTransition";
-import { PROJECTS } from "./projectsData";
+import type { ProjectData } from "./projectsData";
 
-export function Projects() {
+interface ProjectsProps {
+  projects?: ProjectData[];
+}
+
+export function Projects({ projects = [] }: ProjectsProps) {
   const sectionRef = useProjectsAnimations();
-  useProjectsBgTransition(sectionRef);
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const isTouchRef = useRef(
-    typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches
-  );
-
-  const handleHoverStart = useCallback((index: number) => {
-    if (isTouchRef.current) return;
-    setExpandedIndex(index);
-  }, []);
-
-  const handleHoverEnd = useCallback(() => {
-    if (isTouchRef.current) return;
-    setExpandedIndex(null);
-  }, []);
-
-  const handleTap = useCallback((index: number) => {
-    if (!isTouchRef.current) return;
-    setExpandedIndex((prev) => (prev === index ? null : index));
-  }, []);
 
   return (
     <section
@@ -43,19 +25,11 @@ export function Projects() {
         <ProjectsHeading />
       </div>
 
-      {/* Project list */}
+      {/* Projects grid */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 lg:px-10">
-        <div data-project-list className="border-t border-border/40">
-          {PROJECTS.map((project, i) => (
-            <ProjectItem
-              key={project.slug.current}
-              project={project}
-              index={i}
-              isExpanded={expandedIndex === i}
-              onHoverStart={handleHoverStart}
-              onHoverEnd={handleHoverEnd}
-              onTap={handleTap}
-            />
+        <div data-project-list className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
+          {projects.map((p, i) => (
+            <ProjectCard key={p.slug.current} project={p} index={i} />
           ))}
         </div>
       </div>

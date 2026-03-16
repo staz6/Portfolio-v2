@@ -5,7 +5,12 @@ import { AboutDescription } from "./AboutDescription";
 import { AboutHighlights } from "./AboutHighlights";
 import { useAboutAnimations } from "./useAboutAnimations";
 
-export function About() {
+interface AboutProps {
+  description?: any[] | null;
+  highlights?: { text: string }[];
+}
+
+export function About({ description, highlights }: AboutProps) {
   const sectionRef = useAboutAnimations((tl, section) => {
     // Paragraph lines reveal
     tl.from(section.querySelectorAll("[data-about-line]"), {
@@ -57,10 +62,10 @@ export function About() {
 
   return (
     <AboutLayout sectionRef={sectionRef}>
-      <div className="flex flex-col gap-8">
-        <AboutDescription />
+      <div className="flex flex-col gap-5">
+        <AboutDescription description={description} />
         <div data-about-divider className="h-px w-full bg-border" />
-        <AboutHighlights />
+        <AboutHighlights highlights={highlights} />
       </div>
     </AboutLayout>
   );

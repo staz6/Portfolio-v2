@@ -1,21 +1,17 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { useAfterPreloader } from "@/hooks/useAfterPreloader";
+import type { HeroStat } from "@/sanity/lib/mappers";
 
-interface Stat {
-  value: number;
-  suffix: string;
-  label: string;
-}
-
-const STATS: Stat[] = [
+const DEFAULT_STATS: HeroStat[] = [
   { value: 3, suffix: "+", label: "Years Experience" },
   { value: 50, suffix: "+", label: "Projects Completed" },
   { value: 30, suffix: "+", label: "Happy Clients" },
 ];
 
-export function HeroStats() {
+export function HeroStats({ stats }: { stats?: HeroStat[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const data = stats?.length ? stats : DEFAULT_STATS;
 
   useAfterPreloader(() => {
     const container = containerRef.current;
@@ -37,7 +33,7 @@ export function HeroStats() {
 
   return (
     <div ref={containerRef} className="flex gap-2 md:gap-6">
-      {STATS.map((stat) => (
+      {data.map((stat) => (
         <div
           key={stat.label}
           data-hero-stat
