@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useMagnetic } from "@/hooks/useMagnetic";
 import { useContactAnimations } from "./useContactAnimations";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { ContactSocialLink } from "@/sanity/lib/mappers";
 
 type FormState = "idle" | "sending" | "sent" | "error";
@@ -129,36 +130,13 @@ export function Contact({ socialLinks = [], footerText }: ContactProps) {
 /* ── Heading ────────────────────────────────────────────────── */
 
 function ContactHeading() {
-  const words = ["Let's", "Work", "Together"];
-
   return (
-    <div className="flex flex-col gap-6">
-      <div data-contact-label className="flex items-center gap-4">
-        <span className="font-heading text-sm font-semibold tracking-widest text-primary">
-          05
-        </span>
-        <span className="h-px w-12 bg-primary/40" />
-        <span className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          Contact
-        </span>
-      </div>
-
-      <h2 className="font-heading text-5xl font-bold leading-[0.95] tracking-tight md:text-6xl lg:text-8xl">
-        {words.map((word, i) => (
-          <span
-            key={i}
-            className="mr-[0.3em] inline-block overflow-hidden last:mr-0"
-          >
-            <span
-              className={`inline-block will-change-transform ${i === words.length - 1 ? "text-primary" : ""}`}
-              data-contact-char
-            >
-              {word}
-            </span>
-          </span>
-        ))}
-      </h2>
-    </div>
+    <SectionHeading
+      number="05"
+      label="Contact"
+      words={["Let's", "Work", "Together"]}
+      prefix="contact"
+    />
   );
 }
 

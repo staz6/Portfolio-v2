@@ -3,15 +3,15 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ExperienceHeading } from "./ExperienceHeading";
 import { useExperienceAnimations } from "./useExperienceAnimations";
-import type { ExperienceData } from "./experienceData";
+import type { ExperienceProps as ExperienceItemProps } from "@/sanity/lib/mappers";
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface ExperienceProps {
-  experiences?: ExperienceData[];
+interface ExperienceSectionProps {
+  experiences?: ExperienceItemProps[];
 }
 
-export function Experience({ experiences = [] }: ExperienceProps) {
+export function Experience({ experiences = [] }: ExperienceSectionProps) {
   const sectionRef = useExperienceAnimations();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);

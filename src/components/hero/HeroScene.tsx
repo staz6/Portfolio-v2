@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import type { Theme } from "@/hooks/useTheme";
 import { ParticleEmitter } from "./ParticleEmitter";
