@@ -253,6 +253,17 @@
     }
 }
 
+/* Override browser autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--foreground);
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+  box-shadow: 0 0 0px 1000px transparent inset;
+  transition: background-color 5000s ease-in-out 0s;
+  font: inherit;
+}
+
 /* Custom cursor: hide default when custom cursor is active */
 .custom-cursor-active,
 .custom-cursor-active * {
