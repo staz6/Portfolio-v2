@@ -2,12 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import type { ProjectData } from "./projectsData";
+import type { ProjectProps } from "@/sanity/lib/mappers";
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface ProjectCardProps {
-  project: ProjectData;
+  project: ProjectProps;
   index: number;
 }
 
@@ -159,7 +159,7 @@ function ProjectOverlay({
   project,
   onClose,
 }: {
-  project: ProjectData;
+  project: ProjectProps;
   onClose: () => void;
 }) {
   return (

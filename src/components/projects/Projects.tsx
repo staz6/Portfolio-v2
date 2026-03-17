@@ -1,10 +1,10 @@
 import { ProjectsHeading } from "./ProjectsHeading";
 import { ProjectCard } from "./ProjectCard";
 import { useProjectsAnimations } from "./useProjectsAnimations";
-import type { ProjectData } from "./projectsData";
+import type { ProjectProps } from "@/sanity/lib/mappers";
 
 interface ProjectsProps {
-  projects?: ProjectData[];
+  projects?: ProjectProps[];
 }
 
 export function Projects({ projects = [] }: ProjectsProps) {
