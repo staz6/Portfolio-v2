@@ -3,7 +3,7 @@ import { useMagnetic } from "@/hooks/useMagnetic";
 import { useContactAnimations } from "./useContactAnimations";
 import type { ContactSocialLink } from "@/sanity/lib/mappers";
 
-type FormState = "idle" | "sending" | "sent";
+type FormState = "idle" | "sending" | "sent" | "error";
 
 interface ContactProps {
   socialLinks?: ContactSocialLink[];
@@ -12,20 +12,60 @@ interface ContactProps {
 
 function useFormSubmit() {
   const [formState, setFormState] = useState<FormState>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       setFormState("sending");
-      setTimeout(() => {
+      setErrorMsg("");
+
+      const form = e.currentTarget;
+      const data = {
+        name: (form.elements.namedItem("name") as HTMLInputElement).value,
+        company: (form.elements.namedItem("company") as HTMLInputElement).value,
+        project: (form.elements.namedItem("project") as HTMLInputElement).value,
+        email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      };
+
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        // Check content-type to avoid parsing HTML error pages as JSON
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          throw new Error("Server returned an unexpected response. The API may not be deployed yet.");
+        }
+
+        const body = await res.json();
+
+        if (!res.ok) {
+          throw new Error(body.error || "Failed to send message.");
+        }
+
         setFormState("sent");
-        setTimeout(() => setFormState("idle"), 3000);
-      }, 1500);
+        form.reset();
+        setTimeout(() => setFormState("idle"), 4000);
+      } catch (err) {
+        const message =
+          err instanceof TypeError
+            ? "Network error. Please check your connection."
+            : err instanceof Error
+              ? err.message
+              : "Something went wrong. Please try again.";
+        setErrorMsg(message);
+        setFormState("error");
+        setTimeout(() => setFormState("idle"), 5000);
+      }
     },
     [],
   );
 
-  return { formState, handleSubmit };
+  return { formState, errorMsg, handleSubmit };
 }
 
 export function Contact({ socialLinks = [], footerText }: ContactProps) {
@@ -199,7 +239,7 @@ function RotatingBadge() {
 /* ── Contact Form (Mad-Lib Style) ──────────────────────────── */
 
 function ContactForm() {
-  const { formState, handleSubmit } = useFormSubmit();
+  const { formState, errorMsg, handleSubmit } = useFormSubmit();
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-12">
@@ -220,7 +260,7 @@ function ContactForm() {
         <span className="text-muted-foreground">.</span>
       </div>
 
-      <SubmitButton formState={formState} />
+      <SubmitButton formState={formState} errorMsg={errorMsg} />
     </form>
   );
 }
@@ -242,6 +282,7 @@ function MadLibInput({
         type={type}
         name={name}
         required
+        autoComplete="off"
         placeholder={placeholder}
         className="inline w-auto min-w-[120px] border-b-2 border-dashed border-muted-foreground/50 bg-transparent text-center font-heading text-inherit font-bold text-foreground placeholder-muted-foreground/50 outline-none transition-all duration-500 focus:border-solid focus:border-primary focus:text-primary sm:min-w-[160px]"
         style={{ fontSize: "inherit" }}
@@ -255,41 +296,47 @@ function MadLibInput({
 
 /* ── Submit Button ─────────────────────────────────────────── */
 
-function SubmitButton({ formState }: { formState: FormState }) {
+function SubmitButton({ formState, errorMsg }: { formState: FormState; errorMsg: string }) {
   return (
-    <button
-      type="submit"
-      disabled={formState !== "idle"}
-      data-cursor-scale
-      className="contact-btn group relative mt-8 flex w-fit items-center gap-4 overflow-hidden rounded-full border-2 border-border/40 px-10 py-5 text-sm font-semibold uppercase tracking-[0.2em] text-foreground transition-all duration-500 hover:border-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-50"
-    >
-      <span className="contact-btn-bg absolute inset-0 origin-left scale-x-0 bg-primary transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:scale-x-100" />
-      <span className="relative z-10 flex items-center gap-3">
-        {formState === "idle" && (
-          <>
-            Send Message
-            <svg
-              className="h-4 w-4 -rotate-45 transition-transform duration-500 group-hover:rotate-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
-            </svg>
-          </>
-        )}
-        {formState === "sending" && "Sending..."}
-        {formState === "sent" && (
-          <>
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            Message Sent!
-          </>
-        )}
-      </span>
-    </button>
+    <div className="flex flex-col gap-3">
+      <button
+        type="submit"
+        disabled={formState !== "idle"}
+        data-cursor-scale
+        className="contact-btn group relative mt-8 flex w-fit items-center gap-4 overflow-hidden rounded-full border-2 border-border/40 px-10 py-5 text-sm font-semibold uppercase tracking-[0.2em] text-foreground transition-all duration-500 hover:border-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-50"
+      >
+        <span className="contact-btn-bg absolute inset-0 origin-left scale-x-0 bg-primary transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:scale-x-100" />
+        <span className="relative z-10 flex items-center gap-3">
+          {formState === "idle" && (
+            <>
+              Send Message
+              <svg
+                className="h-4 w-4 -rotate-45 transition-transform duration-500 group-hover:rotate-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+              </svg>
+            </>
+          )}
+          {formState === "sending" && "Sending..."}
+          {formState === "sent" && (
+            <>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Message Sent!
+            </>
+          )}
+          {formState === "error" && "Failed to Send"}
+        </span>
+      </button>
+      {formState === "error" && errorMsg && (
+        <p className="text-sm text-destructive">{errorMsg}</p>
+      )}
+    </div>
   );
 }
 
