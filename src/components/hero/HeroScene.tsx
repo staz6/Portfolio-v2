@@ -65,6 +65,14 @@ const SCENE_COLORS: Record<Theme, string> = {
   "orange-light": "#c45a20",
   "mono-dark": "#b0b0b0",
   "mono-light": "#333333",
+  "neon-cyan": "#00f0ff",
+  "neon-pink": "#ff2d95",
+  "neon-green": "#00ff66",
+  "neon-coral": "#ff6b35",
+  "gradient-aurora": "#00D9F5",
+  "gradient-sunset": "#FF2DF1",
+  "gradient-holo": "#60A5FA",
+  "gradient-plasma": "#EC4899",
 };
 
 export function HeroScene() {

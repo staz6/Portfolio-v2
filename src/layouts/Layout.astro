@@ -88,9 +88,9 @@ const jsonLd = {
     {/* ── Theme init (prevents FOUC) ── */}
     <script is:inline>
       (function () {
-        var DARK = ["mono-dark", "orange"];
-        var VALID = ["mono-dark", "mono-light", "orange", "orange-light"];
-        var BG = { "orange": "#0a0a0a", "orange-light": "#faf5f0", "mono-dark": "#0a0a0a", "mono-light": "#fafafa" };
+        var DARK = ["mono-dark", "orange", "neon-cyan", "neon-pink", "neon-green", "neon-coral", "gradient-aurora", "gradient-sunset", "gradient-holo", "gradient-plasma"];
+        var VALID = ["mono-dark", "mono-light", "orange", "orange-light", "neon-cyan", "neon-pink", "neon-green", "neon-coral", "gradient-aurora", "gradient-sunset", "gradient-holo", "gradient-plasma"];
+        var BG = { "orange": "#0a0a0a", "orange-light": "#faf5f0", "mono-dark": "#0a0a0a", "mono-light": "#fafafa", "neon-cyan": "#0a0a12", "neon-pink": "#0d0011", "neon-green": "#050505", "neon-coral": "#0a0808", "gradient-aurora": "#0a0a0f", "gradient-sunset": "#0d0d12", "gradient-holo": "#09090b", "gradient-plasma": "#0b0a10" };
         var stored = localStorage.getItem("theme");
         var theme = VALID.indexOf(stored) !== -1 ? stored : "orange";
         document.documentElement.setAttribute("data-theme", theme);
