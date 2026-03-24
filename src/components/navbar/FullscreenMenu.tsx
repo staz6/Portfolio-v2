@@ -18,6 +18,14 @@ const MENU_THEME: Record<Theme, { text: string; textMuted: string; bg: string; b
   "orange-light": { text: "text-[#c45a20]", textMuted: "text-[#c45a20]/50 hover:text-[#c45a20]", bg: "bg-[#faf5f0]", border: "border-[#c45a20]/20" },
   "mono-dark": { text: "text-background", textMuted: "text-background/50 hover:text-background", bg: "bg-foreground", border: "border-background/10" },
   "mono-light": { text: "text-background", textMuted: "text-background/50 hover:text-background", bg: "bg-foreground", border: "border-background/10" },
+  "neon-cyan": { text: "text-[#00f0ff]", textMuted: "text-[#00f0ff]/50 hover:text-[#00f0ff]", bg: "bg-[#0a0a12]", border: "border-[#00f0ff]/20" },
+  "neon-pink": { text: "text-[#ff2d95]", textMuted: "text-[#ff2d95]/50 hover:text-[#ff2d95]", bg: "bg-[#0d0011]", border: "border-[#ff2d95]/20" },
+  "neon-green": { text: "text-[#00ff66]", textMuted: "text-[#00ff66]/50 hover:text-[#00ff66]", bg: "bg-[#050505]", border: "border-[#00ff66]/20" },
+  "neon-coral": { text: "text-[#ff6b35]", textMuted: "text-[#ff6b35]/50 hover:text-[#ff6b35]", bg: "bg-[#0a0808]", border: "border-[#ff6b35]/20" },
+  "gradient-aurora": { text: "text-[#00F5A0]", textMuted: "text-[#00F5A0]/50 hover:text-[#00F5A0]", bg: "bg-[#0a0a0f]", border: "border-[#00F5A0]/20" },
+  "gradient-sunset": { text: "text-[#FF2DF1]", textMuted: "text-[#FF2DF1]/50 hover:text-[#FF2DF1]", bg: "bg-[#0d0d12]", border: "border-[#FF2DF1]/20" },
+  "gradient-holo": { text: "text-[#A78BFA]", textMuted: "text-[#A78BFA]/50 hover:text-[#A78BFA]", bg: "bg-[#09090b]", border: "border-[#A78BFA]/20" },
+  "gradient-plasma": { text: "text-[#F97316]", textMuted: "text-[#F97316]/50 hover:text-[#F97316]", bg: "bg-[#0b0a10]", border: "border-[#F97316]/20" },
 };
 
 const menuEase = [0.76, 0, 0.24, 1] as const;

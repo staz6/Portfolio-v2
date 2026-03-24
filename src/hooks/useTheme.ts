@@ -1,9 +1,30 @@
 import { useState, useEffect, useCallback } from "react";
 
-export type Theme = "mono-dark" | "mono-light" | "orange" | "orange-light";
+export type Theme =
+  | "mono-dark"
+  | "mono-light"
+  | "orange"
+  | "orange-light"
+  | "neon-cyan"
+  | "neon-pink"
+  | "neon-green"
+  | "neon-coral"
+  | "gradient-aurora"
+  | "gradient-sunset"
+  | "gradient-holo"
+  | "gradient-plasma";
 
-const DARK_THEMES: Theme[] = ["mono-dark", "orange"];
-const THEME_CYCLE: Theme[] = ["orange", "orange-light", "mono-dark", "mono-light"];
+const DARK_THEMES: Theme[] = [
+  "mono-dark", "orange",
+  "neon-cyan", "neon-pink", "neon-green", "neon-coral",
+  "gradient-aurora", "gradient-sunset", "gradient-holo", "gradient-plasma",
+];
+const THEME_CYCLE: Theme[] = [
+  "orange", "orange-light",
+  "mono-dark", "mono-light",
+  "neon-cyan", "neon-pink", "neon-green", "neon-coral",
+  "gradient-aurora", "gradient-sunset", "gradient-holo", "gradient-plasma",
+];
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
