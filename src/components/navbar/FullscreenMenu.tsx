@@ -1,31 +1,19 @@
 import { motion } from "framer-motion";
-import { Github, Linkedin, Twitter } from "lucide-react";
+import { Github, Linkedin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NavItem } from "./Navbar";
-import type { Theme } from "@/hooks/useTheme";
 import { MenuLink } from "./MenuLink";
-import { ThemeToggle } from "./ThemeToggle";
 
 interface FullscreenMenuProps {
   items: readonly NavItem[];
-  theme: Theme;
-  selectTheme: (theme: Theme) => void;
   onNavigate: () => void;
 }
 
-const MENU_THEME: Record<Theme, { text: string; textMuted: string; bg: string; border: string }> = {
-  orange: { text: "text-[#ff6b2b]", textMuted: "text-[#ff6b2b]/50 hover:text-[#ff6b2b]", bg: "bg-[#1a1a1a]", border: "border-[#ff6b2b]/20" },
-  "orange-light": { text: "text-[#c45a20]", textMuted: "text-[#c45a20]/50 hover:text-[#c45a20]", bg: "bg-[#faf5f0]", border: "border-[#c45a20]/20" },
-  "mono-dark": { text: "text-background", textMuted: "text-background/50 hover:text-background", bg: "bg-foreground", border: "border-background/10" },
-  "mono-light": { text: "text-background", textMuted: "text-background/50 hover:text-background", bg: "bg-foreground", border: "border-background/10" },
-  "neon-cyan": { text: "text-[#00f0ff]", textMuted: "text-[#00f0ff]/50 hover:text-[#00f0ff]", bg: "bg-[#0a0a12]", border: "border-[#00f0ff]/20" },
-  "neon-pink": { text: "text-[#ff2d95]", textMuted: "text-[#ff2d95]/50 hover:text-[#ff2d95]", bg: "bg-[#0d0011]", border: "border-[#ff2d95]/20" },
-  "neon-green": { text: "text-[#00ff66]", textMuted: "text-[#00ff66]/50 hover:text-[#00ff66]", bg: "bg-[#050505]", border: "border-[#00ff66]/20" },
-  "neon-coral": { text: "text-[#ff6b35]", textMuted: "text-[#ff6b35]/50 hover:text-[#ff6b35]", bg: "bg-[#0a0808]", border: "border-[#ff6b35]/20" },
-  "gradient-aurora": { text: "text-[#00F5A0]", textMuted: "text-[#00F5A0]/50 hover:text-[#00F5A0]", bg: "bg-[#0a0a0f]", border: "border-[#00F5A0]/20" },
-  "gradient-sunset": { text: "text-[#FF2DF1]", textMuted: "text-[#FF2DF1]/50 hover:text-[#FF2DF1]", bg: "bg-[#0d0d12]", border: "border-[#FF2DF1]/20" },
-  "gradient-holo": { text: "text-[#A78BFA]", textMuted: "text-[#A78BFA]/50 hover:text-[#A78BFA]", bg: "bg-[#09090b]", border: "border-[#A78BFA]/20" },
-  "gradient-plasma": { text: "text-[#F97316]", textMuted: "text-[#F97316]/50 hover:text-[#F97316]", bg: "bg-[#0b0a10]", border: "border-[#F97316]/20" },
+const MENU_COLORS = {
+  text: "text-[#A78BFA]",
+  textMuted: "text-[#A78BFA]/50 hover:text-[#A78BFA]",
+  bg: "bg-[#09090b]",
+  border: "border-[#A78BFA]/20",
 };
 
 const menuEase = [0.76, 0, 0.24, 1] as const;
@@ -78,18 +66,15 @@ const footerVariants = {
 };
 
 const socialLinks = [
-  { icon: Github, href: "https://github.com", label: "GitHub" },
-  { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-  { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+  { icon: Github, href: "https://github.com/staz6", label: "GitHub" },
+  { icon: Linkedin, href: "https://www.linkedin.com/in/muhammad-aahad-568aaa179/", label: "LinkedIn" },
 ];
 
 export function FullscreenMenu({
   items,
-  theme,
-  selectTheme,
   onNavigate,
 }: FullscreenMenuProps) {
-  const colors = MENU_THEME[theme];
+  const colors = MENU_COLORS;
 
   const handleNavigate = (href: string) => {
     onNavigate();
@@ -170,7 +155,6 @@ export function FullscreenMenu({
           >
             hello@aahad.dev
           </a>
-          <ThemeToggle theme={theme} selectTheme={selectTheme} />
         </div>
       </motion.footer>
     </motion.div>
