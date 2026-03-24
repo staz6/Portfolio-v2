@@ -25,8 +25,8 @@ export function Reviews({ reviews = [] }: ReviewsComponentProps) {
         <ReviewsHeading />
       </div>
 
-      {/* Background quote marquee */}
-      <div className="pointer-events-none absolute inset-0 flex items-center overflow-hidden select-none">
+      {/* Background quote marquee — hidden on mobile */}
+      <div className="pointer-events-none absolute inset-0 hidden items-center overflow-hidden select-none lg:flex">
         <div className="marquee-fade w-full">
           <div
             className="marquee-track flex w-max"
