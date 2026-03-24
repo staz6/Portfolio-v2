@@ -163,7 +163,7 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
             {/* Giant background company name */}
             <div
               data-exp-bg
-              className="pointer-events-none absolute inset-0 flex items-center justify-center will-change-transform select-none"
+              className="pointer-events-none absolute inset-0 flex items-center justify-center  select-none"
             >
               <span className="whitespace-nowrap font-heading text-[18vw] font-black uppercase leading-none text-foreground/[0.03] md:text-[14vw]">
                 {exp.companyName}
@@ -173,10 +173,10 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
             {/* Content — split layout */}
             <div
               data-exp-content
-              className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 will-change-transform lg:flex-row lg:items-start lg:gap-20 lg:px-10"
+              className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-10 px-6  lg:flex-row lg:items-start lg:gap-20 lg:px-10"
             >
               {/* Left — company info */}
-              <div data-exp-left className="flex flex-col gap-5 will-change-transform lg:w-2/5">
+              <div data-exp-left className="flex flex-col gap-5  lg:w-2/5">
                 <div className="flex items-center gap-4">
                   <span className="font-heading text-5xl font-black text-primary/20 lg:text-6xl">
                     {String(i + 1).padStart(2, "0")}
@@ -218,7 +218,7 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
               </div>
 
               {/* Right — highlights card */}
-              <div data-exp-right className="will-change-transform lg:w-3/5">
+              <div data-exp-right className=" lg:w-3/5">
                 <div className="rounded-2xl border border-border/20 bg-card/80 p-6 lg:p-10">
                   <p className="mb-6 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
                     Key Contributions

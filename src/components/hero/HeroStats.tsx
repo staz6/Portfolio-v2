@@ -37,7 +37,7 @@ export function HeroStats({ stats }: { stats?: HeroStat[] }) {
         <div
           key={stat.label}
           data-hero-stat
-          className="flex flex-1 flex-col rounded-xl border border-primary/10 bg-primary/[0.04] px-3 py-3 backdrop-blur-sm md:px-5 md:py-4"
+          className="flex flex-1 flex-col rounded-xl border border-primary/10 bg-primary/[0.04] px-3 py-3 md:px-5 md:py-4"
         >
           <div className="flex items-baseline gap-0.5">
             <span

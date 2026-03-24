@@ -133,15 +133,9 @@ export function Hero({
     const isMobile = window.innerWidth < 1024;
     if (isMobile) return;
 
-    // Cache DOM references once
-    const badge = section.querySelector<HTMLElement>("[data-hero-badge]");
-    const rotating = section.querySelector<HTMLElement>("[data-hero-rotating]");
-    const statsEls = section.querySelectorAll<HTMLElement>("[data-hero-stat]");
-    const locationEl = section.querySelector<HTMLElement>("[data-hero-location]");
-
     section.style.willChange = "clip-path";
 
-    // Single ScrollTrigger for all scroll effects (1 callback per frame)
+    // Single ScrollTrigger — only clip-path + content fade (minimal DOM writes)
     const trigger = ScrollTrigger.create({
       trigger: section,
       start: "top top",
@@ -162,25 +156,6 @@ export function Hero({
         // Content fade + lift
         content.style.transform = `translate3d(0, ${p * -100}px, 0)`;
         content.style.opacity = String(1 - p * 0.6);
-
-        // Badge + rotating text fade
-        if (badge) {
-          const badgeP = Math.min(p * 2.5, 1);
-          badge.style.transform = `translate3d(0, ${badgeP * -30}px, 0)`;
-          badge.style.opacity = String(1 - badgeP);
-        }
-        if (rotating) {
-          rotating.style.transform = `translate3d(0, ${p * -20}px, 0)`;
-          rotating.style.opacity = String(1 - p);
-        }
-
-        // Stats + location parallax
-        statsEls.forEach((el) => {
-          el.style.transform = `translate3d(0, ${p * -40}px, 0)`;
-        });
-        if (locationEl) {
-          locationEl.style.transform = `translate3d(0, ${p * -20}px, 0) scale(${1 - p * 0.15})`;
-        }
       },
     });
 
@@ -197,10 +172,10 @@ export function Hero({
       id="hero"
       className="noise-overlay relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
     >
-      {/* Radial glow blobs */}
-      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[60%] w-[60%] rounded-full bg-primary/[0.08] blur-[60px] lg:blur-[120px]" />
-      <div className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[50%] w-[50%] rounded-full bg-primary/[0.06] blur-[50px] lg:blur-[100px]" />
-      <div className="pointer-events-none absolute top-1/3 left-1/2 h-[35%] w-[35%] -translate-x-1/2 rounded-full bg-primary/[0.05] blur-[40px] lg:blur-[80px]" />
+      {/* Radial glow blobs — reduced blur on mobile for performance */}
+      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[50%] w-[50%] rounded-full bg-primary/[0.08] blur-[30px] lg:blur-[80px]" />
+      <div className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[40%] w-[40%] rounded-full bg-primary/[0.06] blur-[25px] lg:blur-[70px]" />
+      <div className="pointer-events-none absolute top-1/3 left-1/2 h-[30%] w-[30%] -translate-x-1/2 rounded-full bg-primary/[0.05] blur-[20px] lg:blur-[60px]" />
 
       {/* 3D wireframe shapes */}
       <HeroScene />
@@ -211,7 +186,7 @@ export function Hero({
       >
         {/* Top — badge */}
         <div data-hero-badge>
-          <span className="inline-flex items-center gap-3 rounded-full border border-primary/20 bg-primary/10 py-1.5 pl-2 pr-5 text-sm font-medium text-foreground shadow-[0_0_20px_rgba(255,107,43,0.15)] backdrop-blur-md">
+          <span className="inline-flex items-center gap-3 rounded-full border border-primary/20 bg-primary/10 py-1.5 pl-2 pr-5 text-sm font-medium text-foreground shadow-[0_0_20px_rgba(255,107,43,0.15)]">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20">
               <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
             </span>

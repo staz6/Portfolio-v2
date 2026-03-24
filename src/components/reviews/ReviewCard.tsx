@@ -20,7 +20,7 @@ export function ReviewCard({ review, index }: ReviewCardProps) {
     <div
       data-review-card={index}
       data-cursor-scale
-      className="review-card-glow group relative flex w-80 shrink-0 flex-col gap-4 rounded-2xl border border-border/30 bg-card/60 p-8 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(0,0,0,0.15)] lg:w-96"
+      className="review-card-glow group relative flex w-80 shrink-0 flex-col gap-4 rounded-2xl border border-border/30 bg-card p-8 transition-all duration-500 hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(0,0,0,0.15)] lg:w-96"
     >
       {/* Decorative quote mark */}
       <span className="pointer-events-none absolute -top-2 -left-1 font-heading text-8xl font-black leading-none text-primary/10 select-none">

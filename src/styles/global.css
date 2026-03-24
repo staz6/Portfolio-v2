@@ -242,6 +242,9 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    }
   * {
     @apply border-border outline-ring/50;
     }
@@ -317,10 +320,10 @@ input:-webkit-autofill:focus {
 }
 
 @keyframes about-grid-drift {
-  0%, 100% { background-position: 0px 0px; }
-  25% { background-position: 35px -25px; }
-  50% { background-position: -20px -45px; }
-  75% { background-position: -30px 15px; }
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(35px, -25px); }
+  50% { transform: translate(-20px, -45px); }
+  75% { transform: translate(-30px, 15px); }
 }
 
 
@@ -344,7 +347,6 @@ input:-webkit-autofill:focus {
 
 .marquee-track {
   animation: marquee 40s linear infinite;
-  will-change: transform;
 }
 
 /* Reverse marquee for review cards row 2 */
@@ -388,9 +390,8 @@ input:-webkit-autofill:focus {
   to { --review-glow-angle: 360deg; }
 }
 
-/* Force GPU compositing layer on hero for smooth GSAP animations */
+/* GPU compositing hint for hero — translateZ promotes to own layer */
 .noise-overlay {
-  will-change: transform;
   transform: translateZ(0);
 }
 

@@ -7,7 +7,7 @@ export function HeroLocation({ location }: { location?: string }) {
 
   return (
     <div ref={magneticRef} data-hero-location>
-      <div className="inline-flex items-center gap-4 rounded-full border border-primary/20 bg-primary/10 py-2 pl-7 pr-2 shadow-[0_0_25px_rgba(255,107,43,0.12)] backdrop-blur-md">
+      <div className="inline-flex items-center gap-4 rounded-full border border-primary/20 bg-primary/10 py-2 pl-7 pr-2 shadow-[0_0_25px_rgba(255,107,43,0.12)]">
         <span className="font-heading text-sm font-medium leading-snug text-foreground md:text-base">
           Located in
           <br />

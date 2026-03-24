@@ -24,7 +24,7 @@ export function NavLinks({ items, activeSection }: NavLinksProps) {
       className="hidden md:block"
       data-nav-link
     >
-      <div className="rounded-full border border-primary/15 bg-primary/5 px-1.5 py-1.5 backdrop-blur-md">
+      <div className="rounded-full border border-primary/15 bg-primary/5 px-1.5 py-1.5">
         <ul
           className="flex items-center gap-0.5"
           onMouseLeave={() => setHoveredIndex(null)}
