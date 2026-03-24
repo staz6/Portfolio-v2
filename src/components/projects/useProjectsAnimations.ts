@@ -20,8 +20,10 @@ export function useProjectsAnimations() {
 
     gsap.set(items, { y: 100, opacity: 0, scale: 0.95 });
 
+    const triggers: ScrollTrigger[] = [];
+
     items.forEach((item, i) => {
-      ScrollTrigger.create({
+      const trigger = ScrollTrigger.create({
         trigger: item,
         start: "top 85%",
         once: true,
@@ -32,9 +34,10 @@ export function useProjectsAnimations() {
           });
         },
       });
+      triggers.push(trigger);
     });
 
-    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
+    return () => triggers.forEach((t) => t.kill());
   }, []);
 
   return sectionRef;

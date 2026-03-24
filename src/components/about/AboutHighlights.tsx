@@ -35,7 +35,7 @@ export function AboutHighlights({ highlights }: { highlights?: HighlightItem[] }
           <div
             key={text}
             data-about-pill
-            className="inline-flex items-center gap-2.5 rounded-full border border-primary/15 bg-primary/[0.06] px-5 py-2.5 text-sm font-medium text-foreground backdrop-blur-sm transition-colors hover:border-primary/30 hover:bg-primary/10"
+            className="inline-flex items-center gap-2.5 rounded-full border border-primary/15 bg-primary/[0.06] px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/10"
           >
             <Icon className="h-4 w-4 text-primary" />
             <span>{text}</span>

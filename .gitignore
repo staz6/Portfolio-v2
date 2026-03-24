@@ -32,3 +32,4 @@ bun.lock
 
 # debug screenshots
 *.png
+.env.local
