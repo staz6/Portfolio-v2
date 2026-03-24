@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import { loadEnv } from "vite";
 import react from "@astrojs/react";
+import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import sanity from "@sanity/astro";
 
@@ -16,6 +17,7 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 // https://astro.build/config
 export default defineConfig({
   output: "static",
+  site: "https://aahad.dev",
   integrations: [
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID,
@@ -25,6 +27,7 @@ export default defineConfig({
       studioBasePath: "/studio",
     }),
     react(),
+    sitemap(),
   ],
 
   vite: {
