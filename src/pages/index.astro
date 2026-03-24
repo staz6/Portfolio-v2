@@ -73,10 +73,14 @@ const reviewsData = reviews?.length ? mapReviews(reviews) : [];
 ---
 
 <Layout
-  title="Aahad | Portfolio"
+  title={seo?.siteTitle || "Aahad | Senior Full Stack Engineer"}
   description={seo?.metaDescription}
   canonicalUrl={seo?.canonicalUrl}
-  ogImageUrl={seo?.ogImageUrl}
+  keywords={seo?.metaKeywords}
+  authorName={seo?.authorName}
+  jobTitle={seo?.jobTitle}
+  skills={seo?.skills}
+  socialProfiles={seo?.socialProfiles}
 >
   <main>
     <Hero

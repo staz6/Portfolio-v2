@@ -75,9 +75,13 @@ export const REVIEWS_QUERY = `
 
 export const SEO_QUERY = `
   *[_type == "seoSettings"][0]{
+    siteTitle,
     metaDescription,
     metaKeywords,
     canonicalUrl,
-    "ogImageUrl": ogImage.asset->url
+    authorName,
+    jobTitle,
+    skills,
+    socialProfiles
   }
 `;

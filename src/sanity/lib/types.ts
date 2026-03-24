@@ -61,8 +61,12 @@ export interface SanityReview {
 }
 
 export interface SanitySeoSettings {
+  siteTitle: string | null;
   metaDescription: string | null;
   metaKeywords: string[] | null;
   canonicalUrl: string | null;
-  ogImageUrl: string | null;
+  authorName: string | null;
+  jobTitle: string | null;
+  skills: string[] | null;
+  socialProfiles: string[] | null;
 }
