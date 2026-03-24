@@ -158,7 +158,7 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
               key={exp.companyName}
               data-exp-panel
               data-exp-item={i}
-              className="absolute inset-0 flex min-h-screen items-start overflow-y-auto pt-8 lg:items-center lg:pt-0"
+              className="absolute inset-0 flex min-h-screen items-start overflow-x-hidden overflow-y-auto bg-background pt-8 lg:items-center lg:pt-0"
             >
             {/* Giant background company name */}
             <div
@@ -217,14 +217,14 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
                 )}
               </div>
 
-              {/* Right — highlights card */}
-              <div data-exp-right className=" lg:w-3/5">
-                <div className="rounded-2xl border border-border/20 bg-card/80 p-6 lg:p-10">
-                  <p className="mb-6 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+              {/* Right — highlights card (scrollable on mobile) */}
+              <div data-exp-right className="lg:w-3/5">
+                <div className="relative rounded-2xl border border-border/20 bg-card/80 p-6 lg:p-10">
+                  <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-primary lg:mb-6">
                     Key Contributions
                   </p>
 
-                  <div className="space-y-5">
+                  <div className="max-h-[40vh] space-y-5 overflow-y-auto pr-2 lg:max-h-none lg:pr-0">
                     {exp.highlights.map((h, j) => (
                       <div key={j} className="flex items-start gap-4">
                         <div className="mt-1 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
@@ -238,6 +238,9 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
                       </div>
                     ))}
                   </div>
+
+                  {/* Scroll fade hint — mobile only */}
+                  <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 rounded-b-2xl bg-gradient-to-t from-card/80 to-transparent lg:hidden" />
                 </div>
               </div>
             </div>

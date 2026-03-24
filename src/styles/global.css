@@ -256,6 +256,41 @@
     }
 }
 
+/* Hide section headings before GSAP hydrates — prevents flash of
+   visible text → hidden → animate. GSAP fromTo() overrides these. */
+[data-about-char],
+[data-projects-char],
+[data-experience-char],
+[data-reviews-char],
+[data-contact-char] {
+  transform: translateY(110%);
+}
+
+[data-about-label],
+[data-projects-label],
+[data-experience-label],
+[data-reviews-label],
+[data-contact-label] {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-about-char],
+  [data-projects-char],
+  [data-experience-char],
+  [data-reviews-char],
+  [data-contact-char] {
+    transform: none;
+  }
+  [data-about-label],
+  [data-projects-label],
+  [data-experience-label],
+  [data-reviews-label],
+  [data-contact-label] {
+    opacity: 1;
+  }
+}
+
 /* Override browser autofill background */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
