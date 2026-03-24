@@ -1,0 +1,116 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Hero } from "../components/hero/Hero";
+import { About } from "../components/about/About";
+import { Projects } from "../components/projects/Projects";
+import { Experience } from "../components/experience/Experience";
+import { Reviews } from "../components/reviews/Reviews";
+import { Contact } from "../components/contact/Contact";
+
+import { loadQuery } from "../sanity/lib/load-query";
+import {
+  PROFILE_QUERY,
+  SOCIAL_LINKS_QUERY,
+  FOOTER_QUERY,
+  ABOUT_QUERY,
+  PROJECTS_QUERY,
+  EXPERIENCES_QUERY,
+  SERVICES_QUERY,
+  REVIEWS_QUERY,
+  SEO_QUERY,
+} from "../sanity/lib/queries";
+import type {
+  SanityProfile,
+  SanitySocialLinks,
+  SanityFooterSettings,
+  SanityAboutSection,
+  SanityProject,
+  SanityExperience,
+  SanityService,
+  SanityReview,
+  SanitySeoSettings,
+} from "../sanity/lib/types";
+import {
+  mapProfileToHeroProps,
+  mapAboutToProps,
+  mapProjects,
+  mapExperiences,
+  mapToContactProps,
+  mapServices,
+  mapReviews,
+} from "../sanity/lib/mappers";
+
+const [profileRes, socialLinksRes, footerRes, aboutRes, projectsRes, experiencesRes, servicesRes, reviewsRes, seoRes] =
+  await Promise.all([
+    loadQuery<SanityProfile>({ query: PROFILE_QUERY }),
+    loadQuery<SanitySocialLinks>({ query: SOCIAL_LINKS_QUERY }),
+    loadQuery<SanityFooterSettings>({ query: FOOTER_QUERY }),
+    loadQuery<SanityAboutSection>({ query: ABOUT_QUERY }),
+    loadQuery<SanityProject[]>({ query: PROJECTS_QUERY }),
+    loadQuery<SanityExperience[]>({ query: EXPERIENCES_QUERY }),
+    loadQuery<SanityService>({ query: SERVICES_QUERY }),
+    loadQuery<SanityReview[]>({ query: REVIEWS_QUERY }),
+    loadQuery<SanitySeoSettings>({ query: SEO_QUERY }),
+  ]);
+
+const profile = profileRes.data;
+const socialLinks = socialLinksRes.data;
+const footer = footerRes.data;
+const about = aboutRes.data;
+const projects = projectsRes.data;
+const experiences = experiencesRes.data;
+const services = servicesRes.data;
+const reviews = reviewsRes.data;
+const seo = seoRes.data;
+
+const heroProps = profile ? mapProfileToHeroProps(profile, socialLinks) : null;
+const aboutData = about ? mapAboutToProps(about) : null;
+const projectsData = projects?.length ? mapProjects(projects) : [];
+const experiencesData = experiences?.length ? mapExperiences(experiences) : [];
+const contactProps = mapToContactProps(socialLinks, footer);
+const servicesData = services ? mapServices(services) : [];
+const reviewsData = reviews?.length ? mapReviews(reviews) : [];
+---
+
+<Layout
+  title={seo?.siteTitle || "Aahad | Senior Full Stack Engineer"}
+  description={seo?.metaDescription}
+  canonicalUrl={seo?.canonicalUrl}
+  keywords={seo?.metaKeywords}
+  authorName={seo?.authorName}
+  jobTitle={seo?.jobTitle}
+  skills={seo?.skills}
+  socialProfiles={seo?.socialProfiles}
+>
+  <main>
+    <Hero
+      client:load
+      name={heroProps?.name}
+      title={heroProps?.title}
+      bio={heroProps?.bio}
+      location={heroProps?.location}
+      availability={heroProps?.availability}
+      stats={heroProps?.stats}
+      socials={heroProps?.socials}
+      services={servicesData}
+    />
+
+    <About
+      client:visible
+      description={aboutData?.description}
+      highlights={aboutData?.highlights}
+    />
+
+    <Projects client:visible projects={projectsData} />
+
+    <Experience client:idle experiences={experiencesData} />
+
+    <Reviews client:idle reviews={reviewsData} />
+
+    <Contact
+      client:idle
+      socialLinks={contactProps?.socialLinks}
+      footerText={contactProps?.footerText}
+    />
+  </main>
+</Layout>

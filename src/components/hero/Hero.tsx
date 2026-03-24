@@ -1,0 +1,238 @@
+import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useAfterPreloader } from "@/hooks/useAfterPreloader";
+import { HeroTitle } from "./HeroTitle";
+import { RotatingText } from "./RotatingText";
+import { HeroBio } from "./HeroBio";
+import { HeroStats } from "./HeroStats";
+import { HeroSocials } from "./HeroSocials";
+import { HeroCTA } from "./HeroCTA";
+import { HeroLocation } from "./HeroLocation";
+import { HeroMarquee } from "./HeroMarquee";
+import { HeroScene } from "./HeroScene";
+import type { HeroStat, HeroSocial } from "@/sanity/lib/mappers";
+
+gsap.registerPlugin(ScrollTrigger);
+
+interface HeroProps {
+  name?: string;
+  title?: string;
+  bio?: string;
+  location?: string;
+  availability?: boolean;
+  stats?: HeroStat[];
+  socials?: HeroSocial[];
+  services?: string[];
+}
+
+export function Hero({
+  name,
+  title,
+  bio,
+  location,
+  availability,
+  stats,
+  socials,
+  services,
+}: HeroProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Master entrance timeline — waits for preloader to finish
+  const entranceTl = useRef<gsap.core.Timeline>(undefined);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    // Respect reduced motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(
+        section.querySelectorAll(
+          "[data-hero-rotating], [data-hero-bio], [data-hero-stat], [data-hero-cta], [data-hero-social], [data-hero-scroll], [data-hero-badge], [data-hero-scene], [data-hero-location], [data-hero-marquee]",
+        ),
+        { opacity: 1, y: 0, x: 0, scale: 1 },
+      );
+      return;
+    }
+
+    // Hide text characters below mask until animation triggers
+    section.querySelectorAll<HTMLElement>(".hero-text-reveal").forEach((el) => {
+      el.classList.add("hero-hidden");
+    });
+
+    // Hide section while preloader is up
+    gsap.set(section, { visibility: "hidden" });
+
+    return () => {
+      entranceTl.current?.kill();
+    };
+  }, []);
+
+  useAfterPreloader(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    gsap.set(section, { visibility: "visible" });
+
+    // Trigger text CSS animations by adding the animate class
+    requestAnimationFrame(() => {
+      section.querySelectorAll<HTMLElement>(".hero-text-reveal").forEach((el) => {
+        el.classList.add("hero-text-animate");
+      });
+    });
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power4.out", duration: 0.8, force3D: true },
+    });
+    entranceTl.current = tl;
+
+    // 1. Badge (starts same time as text)
+    tl.from("[data-hero-badge]", { y: 20, opacity: 0, duration: 0.5 });
+
+    // 3. 3D scene fades in (give text 0.8s head start)
+    tl.from("[data-hero-scene]", { opacity: 0, duration: 1.2, ease: "power2.inOut" }, "+=0.5");
+
+    // 4. Rotating title
+    tl.from("[data-hero-rotating]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.8");
+
+    // 5. Tech marquee
+    tl.from("[data-hero-marquee]", { opacity: 0, duration: 0.6 }, "-=0.5");
+
+    // 6. Bio + Stats (bottom row)
+    tl.from("[data-hero-bio]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.3");
+    tl.from(section.querySelectorAll("[data-hero-stat]"), {
+      y: 30, opacity: 0, duration: 0.5, stagger: 0.1,
+    }, "-=0.4");
+
+    // 7. Location badge + CTA
+    tl.from("[data-hero-location]", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, "-=0.3");
+    tl.from("[data-hero-cta]", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, "-=0.3");
+
+    // 8. Socials
+    tl.from(section.querySelectorAll("[data-hero-social]"), {
+      x: -20, opacity: 0, duration: 0.4, stagger: 0.08,
+    }, "-=0.3");
+
+    // 9. Scroll indicator
+    tl.from("[data-hero-scroll]", { opacity: 0, duration: 0.5 }, "-=0.1");
+  });
+
+  // Scroll parallax — layered depth + horizontal text movement
+  useEffect(() => {
+    const content = contentRef.current;
+    const section = sectionRef.current;
+    if (!content || !section) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // Skip all scroll parallax on mobile — too expensive, causes lag
+    const isMobile = window.innerWidth < 1024;
+    if (isMobile) return;
+
+    section.style.willChange = "clip-path";
+
+    // Single ScrollTrigger — only clip-path + content fade (minimal DOM writes)
+    const trigger = ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: "bottom top",
+      scrub: 0.5,
+      onUpdate: (self) => {
+        const p = self.progress;
+
+        // Trapezoid clip-path
+        const tlX = p * 20;
+        const trX = 100 - p * 25;
+        const brX = 100 - p * 5;
+        const blX = p * 2;
+        const blY = 100 - p * 12;
+        const brY = 100 - p * 4;
+        section.style.clipPath = `polygon(${tlX}% 0%, ${trX}% 0%, ${brX}% ${brY}%, ${blX}% ${blY}%)`;
+
+        // Content fade + lift
+        content.style.transform = `translate3d(0, ${p * -100}px, 0)`;
+        content.style.opacity = String(1 - p * 0.6);
+      },
+    });
+
+    return () => {
+      trigger.kill();
+      section.style.willChange = "";
+      section.style.clipPath = "";
+    };
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      id="hero"
+      className="noise-overlay relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
+    >
+      {/* Radial glow blobs — reduced blur on mobile for performance */}
+      <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[50%] w-[50%] rounded-full bg-primary/[0.08] blur-[30px] lg:blur-[80px]" />
+      <div className="pointer-events-none absolute -right-1/4 -bottom-1/4 h-[40%] w-[40%] rounded-full bg-primary/[0.06] blur-[25px] lg:blur-[70px]" />
+      <div className="pointer-events-none absolute top-1/3 left-1/2 h-[30%] w-[30%] -translate-x-1/2 rounded-full bg-primary/[0.05] blur-[20px] lg:blur-[60px]" />
+
+      {/* 3D wireframe shapes */}
+      <HeroScene />
+
+      <div
+        ref={contentRef}
+        className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 lg:gap-8 lg:px-10"
+      >
+        {/* Top — badge */}
+        <div data-hero-badge>
+          <span className="inline-flex items-center gap-3 rounded-full border border-primary/20 bg-primary/10 py-1.5 pl-2 pr-5 text-sm font-medium text-foreground shadow-[0_0_20px_rgba(255,107,43,0.15)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+            </span>
+            {availability !== false ? "Available for work" : "Currently unavailable"}
+          </span>
+        </div>
+
+        {/* Center — massive name */}
+        <div className="flex flex-col gap-4">
+          <HeroTitle name={name} />
+          <RotatingText />
+        </div>
+
+        {/* Full-width tech marquee — breaks out of container */}
+        <div className="relative left-1/2 w-screen -translate-x-1/2">
+          <HeroMarquee services={services} />
+        </div>
+
+        {/* Bottom — bio left, stats right */}
+        <div className="flex flex-col justify-between gap-10 lg:flex-row lg:items-end">
+          <div className="flex flex-col gap-6">
+            <HeroBio bio={bio} />
+            <div className="flex items-center gap-6">
+              <HeroCTA />
+              <HeroSocials socials={socials} />
+            </div>
+          </div>
+          <div className="flex flex-col items-start gap-6 lg:items-end">
+            <HeroStats stats={stats} />
+            <HeroLocation location={location} />
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        data-hero-scroll
+        className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2"
+        animate={{ y: [0, 8, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <span className="text-xs uppercase tracking-widest text-primary/60">
+          Scroll
+        </span>
+        <div className="h-12 w-px bg-gradient-to-b from-primary/50 to-transparent" />
+      </motion.div>
+    </section>
+  );
+}
