@@ -60,41 +60,12 @@ function Scene({ color }: { color: string }) {
 
 /* ── Exported wrapper ── */
 
-const SCENE_COLORS: Record<Theme, string> = {
-  orange: "#ff6b2b",
-  "orange-light": "#c45a20",
-  "mono-dark": "#b0b0b0",
-  "mono-light": "#333333",
-  "neon-cyan": "#00f0ff",
-  "neon-pink": "#ff2d95",
-  "neon-green": "#00ff66",
-  "neon-coral": "#ff6b35",
-  "gradient-aurora": "#00D9F5",
-  "gradient-sunset": "#FF2DF1",
-  "gradient-holo": "#60A5FA",
-  "gradient-plasma": "#EC4899",
-};
+const SCENE_COLOR = "#60A5FA"; // Holographic blue
 
 export function HeroScene() {
-  const [color, setColor] = useState(SCENE_COLORS.orange);
+  const [color] = useState(SCENE_COLOR);
   const containerRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const updateFromTheme = () => {
-      const theme = (document.documentElement.getAttribute("data-theme") ?? "orange") as Theme;
-      setColor(SCENE_COLORS[theme] ?? SCENE_COLORS.orange);
-    };
-    updateFromTheme();
-
-    const observer = new MutationObserver(updateFromTheme);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   // Pause canvas when scrolled past hero
   useEffect(() => {
