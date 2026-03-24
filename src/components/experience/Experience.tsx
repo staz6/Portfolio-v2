@@ -158,7 +158,7 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
               key={exp.companyName}
               data-exp-panel
               data-exp-item={i}
-              className="absolute inset-0 flex min-h-screen items-center overflow-hidden"
+              className="absolute inset-0 flex min-h-screen items-start overflow-y-auto pt-8 lg:items-center lg:pt-0"
             >
             {/* Giant background company name */}
             <div
@@ -173,12 +173,12 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
             {/* Content — split layout */}
             <div
               data-exp-content
-              className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-10 px-6  lg:flex-row lg:items-start lg:gap-20 lg:px-10"
+              className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 lg:flex-row lg:items-start lg:gap-20 lg:px-10"
             >
               {/* Left — company info */}
-              <div data-exp-left className="flex flex-col gap-5  lg:w-2/5">
+              <div data-exp-left className="flex flex-col gap-3 lg:gap-5 lg:w-2/5">
                 <div className="flex items-center gap-4">
-                  <span className="font-heading text-5xl font-black text-primary/20 lg:text-6xl">
+                  <span className="font-heading text-3xl font-black text-primary/20 sm:text-5xl lg:text-6xl">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div className="h-px flex-1 bg-primary/20" />
@@ -187,7 +187,7 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
                   </span>
                 </div>
 
-                <h3 className="font-heading text-5xl font-bold text-foreground md:text-6xl lg:text-7xl">
+                <h3 className="font-heading text-3xl font-bold text-foreground sm:text-4xl md:text-6xl lg:text-7xl">
                   {exp.companyName}
                 </h3>
 
