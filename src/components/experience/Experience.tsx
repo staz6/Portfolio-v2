@@ -245,6 +245,8 @@ function DesktopCinematic({ experiences }: { experiences: ExperienceItemProps[] 
           setTimeout(() => preventScroll.disable(), 800);
         } else {
           // First panel — exit upward to projects
+          // Pre-set first panel visible so scroll-back shows correct content (Safari fix)
+          resetToPanel(0);
           intentObserver.disable();
           window.scrollTo(0, trigger.start - 1);
         }
@@ -257,6 +259,8 @@ function DesktopCinematic({ experiences }: { experiences: ExperienceItemProps[] 
           setTimeout(() => preventScroll.disable(), 800);
         } else {
           // Last panel — exit downward to reviews
+          // Pre-set last panel visible so scroll-back shows correct content (Safari fix)
+          resetToPanel(count - 1);
           intentObserver.disable();
           window.scrollTo(0, trigger.end + 1);
         }
@@ -291,8 +295,19 @@ function DesktopCinematic({ experiences }: { experiences: ExperienceItemProps[] 
       pin: stack,
       start: "top top",
       end: () => `+=${count * window.innerHeight}`,
-      onEnter: () => { resetToPanel(0); intentObserver.enable(); },
-      onEnterBack: () => { resetToPanel(count - 1); intentObserver.enable(); },
+      onEnter: () => {
+        resetToPanel(0);
+        // Block observer until scroll momentum from previous section settles
+        animating = true;
+        intentObserver.enable();
+        setTimeout(() => { animating = false; }, 800);
+      },
+      onEnterBack: () => {
+        resetToPanel(count - 1);
+        animating = true;
+        intentObserver.enable();
+        setTimeout(() => { animating = false; }, 800);
+      },
       onLeave: () => intentObserver.disable(),
       onLeaveBack: () => intentObserver.disable(),
     });
