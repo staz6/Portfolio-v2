@@ -26,9 +26,14 @@ export function useReviewsAnimations() {
     gsap.set(rows, { y: 80, opacity: 0 });
     if (allStars.length) gsap.set(allStars, { scale: 0, opacity: 0 });
 
+    const showAll = () => {
+      gsap.set(rows, { y: 0, opacity: 1 });
+      if (allStars.length) gsap.set(allStars, { scale: 1, opacity: 1 });
+    };
+
     const trigger = ScrollTrigger.create({
       trigger: section.querySelector("[data-reviews-content]"),
-      start: "top 70%",
+      start: "top 85%",
       once: true,
       onEnter: () => {
         gsap.to(rows, {
@@ -41,6 +46,7 @@ export function useReviewsAnimations() {
           });
         }
       },
+      onRefresh: (self) => { if (self.progress > 0) showAll(); },
     });
 
     return () => trigger.kill();

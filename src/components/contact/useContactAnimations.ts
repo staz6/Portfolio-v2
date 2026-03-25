@@ -22,12 +22,15 @@ export function useContactAnimations() {
 
     const trigger = ScrollTrigger.create({
       trigger: section.querySelector("[data-contact-content]"),
-      start: "top 80%",
+      start: "top 85%",
       once: true,
       onEnter: () => {
         gsap.to(items, {
           y: 0, opacity: 1, duration: 1.2, stagger: 0.2, ease: "power4.out",
         });
+      },
+      onRefresh: (self) => {
+        if (self.progress > 0) gsap.set(items, { y: 0, opacity: 1 });
       },
     });
 

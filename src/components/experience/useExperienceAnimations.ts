@@ -21,7 +21,7 @@ export function useExperienceAnimations() {
     gsap.set(items, { y: 60, opacity: 0 });
 
     const batch = ScrollTrigger.batch(items, {
-      start: "top 85%",
+      start: "top 90%",
       once: true,
       onEnter: (batch) => {
         gsap.to(batch, {
@@ -29,6 +29,16 @@ export function useExperienceAnimations() {
           ease: "power4.out", force3D: true,
         });
       },
+    });
+
+    // If already scrolled past, show immediately
+    requestAnimationFrame(() => {
+      items.forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        if (rect.top < window.innerHeight) {
+          gsap.set(item, { y: 0, opacity: 1 });
+        }
+      });
     });
 
     return () => {

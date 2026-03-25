@@ -67,9 +67,13 @@ export function useHeadingAnimation(
 
     const trigger = ScrollTrigger.create({
       trigger: section,
-      start: "top 75%",
+      start: "top 85%",
       once: true,
       onEnter: () => tl.play(),
+      onRefresh: (self) => {
+        // If already scrolled past, play immediately
+        if (self.progress > 0) tl.progress(1);
+      },
     });
 
     return () => { trigger.kill(); tl.kill(); };

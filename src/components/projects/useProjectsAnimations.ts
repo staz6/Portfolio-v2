@@ -25,13 +25,16 @@ export function useProjectsAnimations() {
     items.forEach((item, i) => {
       const trigger = ScrollTrigger.create({
         trigger: item,
-        start: "top 85%",
+        start: "top 90%",
         once: true,
         onEnter: () => {
           gsap.to(item, {
             y: 0, opacity: 1, scale: 1, duration: 1,
             delay: (i % 2) * 0.15, ease: "power3.out",
           });
+        },
+        onRefresh: (self) => {
+          if (self.progress > 0) gsap.set(item, { y: 0, opacity: 1, scale: 1 });
         },
       });
       triggers.push(trigger);
