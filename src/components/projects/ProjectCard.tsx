@@ -225,7 +225,7 @@ function ProjectOverlay({
             initial="hidden"
             animate="visible"
             onClick={onClose}
-            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-[#A78BFA]/30 bg-[#A78BFA]/10 text-[#A78BFA] backdrop-blur-sm transition-all duration-300 hover:border-[#60A5FA] hover:bg-[linear-gradient(135deg,#A78BFA,#60A5FA,#34D399)] hover:text-white hover:rotate-90 hover:shadow-[0_0_20px_rgba(96,165,250,0.3)]"
+            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-border/30 bg-card/80 text-foreground/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-primary/20 hover:text-foreground hover:rotate-90"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
