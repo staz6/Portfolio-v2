@@ -86,39 +86,39 @@ export function Hero({
     });
 
     const tl = gsap.timeline({
-      defaults: { ease: "power4.out", duration: 0.8, force3D: true },
+      defaults: { ease: "power4.out", duration: 0.5, force3D: true },
     });
     entranceTl.current = tl;
 
-    // 1. Badge (starts same time as text)
-    tl.from("[data-hero-badge]", { y: 20, opacity: 0, duration: 0.5 });
+    // 1. Badge
+    tl.from("[data-hero-badge]", { y: 15, opacity: 0, duration: 0.3 });
 
-    // 3. 3D scene fades in (give text 0.8s head start)
-    tl.from("[data-hero-scene]", { opacity: 0, duration: 1.2, ease: "power2.inOut" }, "+=0.5");
+    // 2. 3D scene fades in
+    tl.from("[data-hero-scene]", { opacity: 0, duration: 0.8, ease: "power2.inOut" }, "+=0.2");
 
-    // 4. Rotating title
-    tl.from("[data-hero-rotating]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.8");
+    // 3. Rotating title
+    tl.from("[data-hero-rotating]", { y: 20, opacity: 0, duration: 0.4 }, "-=0.5");
 
-    // 5. Tech marquee
-    tl.from("[data-hero-marquee]", { opacity: 0, duration: 0.6 }, "-=0.5");
+    // 4. Tech marquee
+    tl.from("[data-hero-marquee]", { opacity: 0, duration: 0.4 }, "-=0.3");
 
-    // 6. Bio + Stats (bottom row)
-    tl.from("[data-hero-bio]", { y: 30, opacity: 0, duration: 0.6 }, "-=0.3");
+    // 5. Bio + Stats
+    tl.from("[data-hero-bio]", { y: 20, opacity: 0, duration: 0.4 }, "-=0.2");
     tl.from(section.querySelectorAll("[data-hero-stat]"), {
-      y: 30, opacity: 0, duration: 0.5, stagger: 0.1,
-    }, "-=0.4");
+      y: 20, opacity: 0, duration: 0.3, stagger: 0.06,
+    }, "-=0.2");
 
-    // 7. Location badge + CTA
-    tl.from("[data-hero-location]", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, "-=0.3");
-    tl.from("[data-hero-cta]", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, "-=0.3");
+    // 6. Location + CTA
+    tl.from("[data-hero-location]", { scale: 0.9, opacity: 0, duration: 0.3, ease: "back.out(1.7)" }, "-=0.2");
+    tl.from("[data-hero-cta]", { scale: 0.9, opacity: 0, duration: 0.3, ease: "back.out(1.7)" }, "-=0.2");
 
-    // 8. Socials
+    // 7. Socials
     tl.from(section.querySelectorAll("[data-hero-social]"), {
-      x: -20, opacity: 0, duration: 0.4, stagger: 0.08,
-    }, "-=0.3");
+      x: -15, opacity: 0, duration: 0.3, stagger: 0.05,
+    }, "-=0.2");
 
-    // 9. Scroll indicator
-    tl.from("[data-hero-scroll]", { opacity: 0, duration: 0.5 }, "-=0.1");
+    // 8. Scroll indicator
+    tl.from("[data-hero-scroll]", { opacity: 0, duration: 0.3 }, "-=0.1");
   });
 
   // Scroll parallax — layered depth + horizontal text movement
