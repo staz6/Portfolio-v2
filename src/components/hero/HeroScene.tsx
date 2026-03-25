@@ -2,7 +2,6 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
-import type { Theme } from "@/hooks/useTheme";
 import { ParticleEmitter } from "./ParticleEmitter";
 import { WireframeShape } from "./WireframeShape";
 import { SkillNetwork } from "./SkillNetwork";

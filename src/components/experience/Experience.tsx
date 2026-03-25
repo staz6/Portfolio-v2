@@ -156,79 +156,156 @@ function DesktopCinematic({ experiences }: { experiences: ExperienceItemProps[] 
     const lefts = stack.querySelectorAll<HTMLElement>("[data-exp-left]");
     const rights = stack.querySelectorAll<HTMLElement>("[data-exp-right]");
 
+    // Show first panel, hide rest
     panels.forEach((panel, i) => {
-      if (i > 0) gsap.set(panel, { visibility: "hidden", force3D: true });
+      if (i === 0) {
+        gsap.set(panel, { visibility: "visible", zIndex: 2 });
+        gsap.set(lefts[i], { opacity: 1, x: 0, y: 0, scale: 1 });
+        gsap.set(rights[i], { opacity: 1, x: 0, y: 0, scale: 1 });
+        gsap.set(bgs[i], { opacity: 1, scale: 1, rotation: 0 });
+      } else {
+        gsap.set(panel, { visibility: "hidden", zIndex: 0 });
+      }
     });
 
-    const perPanel = window.innerHeight * 1.5;
-    const totalDistance = count * perPanel;
-    const snapPoints = Array.from({ length: count }, (_, i) => i / count);
+    let currentIndex = 0;
+    let animating = false;
 
-    const easeOut = (t: number) => 1 - (1 - t) * (1 - t) * (1 - t);
-    const easeIn = (t: number) => t * t * t;
+    // Animate from one panel to another
+    function goToPanel(index: number) {
+      if (index < 0 || index >= count || index === currentIndex) return;
+      animating = true;
 
-    const trigger = ScrollTrigger.create({
+      const goingDown = index > currentIndex;
+      const fromPanel = panels[currentIndex];
+      const fromBg = bgs[currentIndex] as HTMLElement | undefined;
+      const fromLeft = lefts[currentIndex] as HTMLElement | undefined;
+      const fromRight = rights[currentIndex] as HTMLElement | undefined;
+
+      const toPanel = panels[index];
+      const toBg = bgs[index] as HTMLElement | undefined;
+      const toLeft = lefts[index] as HTMLElement | undefined;
+      const toRight = rights[index] as HTMLElement | undefined;
+
+      const tl = gsap.timeline({
+        defaults: { duration: 0.7, ease: "power3.inOut", force3D: true },
+        onComplete: () => {
+          // Hide old panel fully
+          gsap.set(fromPanel, { visibility: "hidden", zIndex: 0 });
+          currentIndex = index;
+          animating = false;
+        },
+      });
+
+      // Show incoming panel behind outgoing
+      gsap.set(toPanel, { visibility: "visible", zIndex: 1 });
+
+      // Set incoming panel starting state
+      const enterX = goingDown ? 60 : -60;
+      if (toLeft) gsap.set(toLeft, { opacity: 0, x: enterX, y: goingDown ? 30 : -30, scale: 0.95 });
+      if (toRight) gsap.set(toRight, { opacity: 0, x: -enterX * 0.8, y: goingDown ? -20 : 20, scale: 0.92 });
+      if (toBg) gsap.set(toBg, { opacity: 0, scale: 0.92, rotation: goingDown ? 2 : -2 });
+
+      // Exit current panel
+      const exitX = goingDown ? -100 : 100;
+      if (fromLeft) tl.to(fromLeft, { opacity: 0, x: exitX, y: goingDown ? -50 : 50, scale: 0.92 }, 0);
+      if (fromRight) tl.to(fromRight, { opacity: 0, x: -exitX * 0.7, y: goingDown ? 30 : -30, scale: 0.96 }, 0);
+      if (fromBg) tl.to(fromBg, { opacity: 0, scale: 1.15, rotation: goingDown ? -1.5 : 1.5 }, 0);
+
+      // Enter new panel (slightly delayed for overlap)
+      tl.set(toPanel, { zIndex: 2 }, 0.15);
+      if (toLeft) tl.to(toLeft, { opacity: 1, x: 0, y: 0, scale: 1 }, 0.15);
+      if (toRight) tl.to(toRight, { opacity: 1, x: 0, y: 0, scale: 1 }, 0.15);
+      if (toBg) tl.to(toBg, { opacity: 1, scale: 1, rotation: 0 }, 0.15);
+    }
+
+    // Prevent scroll from moving during panel animation
+    const preventScroll = ScrollTrigger.observe({
+      preventDefault: true,
+      type: "wheel,touch,scroll",
+      allowClicks: true,
+      onEnable: (self) => { (self as any)._savedScroll = window.scrollY; },
+      onChangeY: (self) => { window.scrollTo(0, (self as any)._savedScroll); },
+    });
+    preventScroll.disable();
+
+    // Observer detects scroll/swipe intent — one gesture = one panel
+    // Declared before trigger so onEnter/onLeave can reference it
+    let trigger: ScrollTrigger;
+
+    const intentObserver = ScrollTrigger.observe({
+      type: "wheel,touch",
+      debounce: false,
+      tolerance: 50,
+      onUp: () => {
+        if (animating) return;
+        if (currentIndex > 0) {
+          preventScroll.enable();
+          goToPanel(currentIndex - 1);
+          setTimeout(() => preventScroll.disable(), 800);
+        } else {
+          // First panel — exit upward to projects
+          intentObserver.disable();
+          window.scrollTo(0, trigger.start - 1);
+        }
+      },
+      onDown: () => {
+        if (animating) return;
+        if (currentIndex < count - 1) {
+          preventScroll.enable();
+          goToPanel(currentIndex + 1);
+          setTimeout(() => preventScroll.disable(), 800);
+        } else {
+          // Last panel — exit downward to reviews
+          intentObserver.disable();
+          window.scrollTo(0, trigger.end + 1);
+        }
+      },
+    });
+    // Start disabled — ScrollTrigger onEnter enables it
+    intentObserver.disable();
+
+    // Pin the section with ScrollTrigger (creates scroll space, no scrub)
+    // anticipatePin helps Safari re-engage the pin smoothly
+    // Helper to reset panels to a specific index
+    function resetToPanel(idx: number) {
+      currentIndex = idx;
+      animating = false;
+      panels.forEach((panel, i) => {
+        const isTarget = i === idx;
+        panel.style.visibility = isTarget ? "visible" : "hidden";
+        panel.style.zIndex = isTarget ? "2" : "0";
+        if (isTarget) {
+          lefts[i].style.opacity = "1";
+          lefts[i].style.transform = "translate3d(0,0,0) scale(1)";
+          rights[i].style.opacity = "1";
+          rights[i].style.transform = "translate3d(0,0,0) scale(1)";
+          bgs[i].style.opacity = "1";
+          bgs[i].style.transform = "scale(1) rotate(0deg)";
+        }
+      });
+    }
+
+    trigger = ScrollTrigger.create({
       trigger: wrapper,
-      start: "top top",
-      end: () => `+=${totalDistance}`,
       pin: stack,
-      scrub: 1,
-      snap: {
-        snapTo: snapPoints,
-        duration: { min: 0.8, max: 1.4 },
-        delay: 0.1,
-        ease: "power3.inOut",
-      },
-      onUpdate: (self) => {
-        const totalP = self.progress * count;
-        const activeIndex = Math.min(Math.floor(totalP), count - 1);
-        const localP = totalP - activeIndex;
-
-        panels.forEach((panel, i) => {
-          const bg = bgs[i];
-          const left = lefts[i];
-          const right = rights[i];
-
-          if (i === activeIndex) {
-            if (localP <= 0.55) {
-              const bgScale = 1 + localP * 0.03;
-              gsap.set(panel, { visibility: "visible", zIndex: 2, force3D: true });
-              if (left) gsap.set(left, { opacity: 1, x: 0, y: 0, scale: 1, force3D: true });
-              if (right) gsap.set(right, { opacity: 1, x: 0, y: 0, scale: 1, force3D: true });
-              if (bg) gsap.set(bg, { scale: bgScale, opacity: 1, rotate: 0, force3D: true });
-            } else if (localP <= 0.72 && i < count - 1) {
-              const exitP = easeIn((localP - 0.55) / 0.17);
-              gsap.set(panel, { visibility: "visible", zIndex: 2, force3D: true });
-              if (left) gsap.set(left, { opacity: 1 - exitP, x: -100 * exitP, y: -50 * exitP, scale: 1 - exitP * 0.08, force3D: true });
-              if (right) gsap.set(right, { opacity: 1 - exitP, x: 70 * exitP, y: 30 * exitP, scale: 1 - exitP * 0.04, force3D: true });
-              if (bg) gsap.set(bg, { scale: 1.02 + exitP * 0.15, opacity: 1 - exitP, rotate: exitP * -1.5, force3D: true });
-            } else if (i < count - 1) {
-              gsap.set(panel, { visibility: "hidden", zIndex: 0, force3D: true });
-            } else {
-              gsap.set(panel, { visibility: "visible", zIndex: 2, force3D: true });
-              if (left) gsap.set(left, { opacity: 1, x: 0, y: 0, scale: 1, force3D: true });
-              if (right) gsap.set(right, { opacity: 1, x: 0, y: 0, scale: 1, force3D: true });
-              if (bg) gsap.set(bg, { scale: 1, opacity: 1, rotate: 0, force3D: true });
-            }
-          } else if (i === activeIndex + 1) {
-            const enterRaw = localP > 0.72 ? Math.min((localP - 0.72) / 0.23, 1) : 0;
-            const enterP = easeOut(enterRaw);
-            gsap.set(panel, { visibility: enterRaw > 0 ? "visible" : "hidden", zIndex: enterRaw > 0 ? 2 : 0, force3D: true });
-            if (left) gsap.set(left, { opacity: enterP, x: 60 * (1 - enterP), y: 30 * (1 - enterP), scale: 0.95 + 0.05 * enterP, force3D: true });
-            if (right) gsap.set(right, { opacity: enterP, x: -50 * (1 - enterP), y: -20 * (1 - enterP), scale: 0.92 + 0.08 * enterP, force3D: true });
-            if (bg) gsap.set(bg, { scale: 0.92 + 0.08 * enterP, opacity: enterP, rotate: 2 * (1 - enterP), force3D: true });
-          } else {
-            gsap.set(panel, { visibility: "hidden", zIndex: 0, force3D: true });
-          }
-        });
-      },
+      start: "top top",
+      end: () => `+=${count * window.innerHeight}`,
+      onEnter: () => { resetToPanel(0); intentObserver.enable(); },
+      onEnterBack: () => { resetToPanel(count - 1); intentObserver.enable(); },
+      onLeave: () => intentObserver.disable(),
+      onLeaveBack: () => intentObserver.disable(),
     });
 
-    return () => trigger.kill();
+    return () => {
+      trigger.kill();
+      intentObserver.disable();
+      preventScroll.disable();
+    };
   }, [experiences]);
 
   return (
-    <div ref={wrapperRef}>
+    <div ref={wrapperRef} className="overflow-hidden">
       <div ref={stackRef} className="relative min-h-screen">
         {experiences.map((exp, i) => (
           <div
