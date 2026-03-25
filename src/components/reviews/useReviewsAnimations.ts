@@ -60,9 +60,11 @@ export function useReviewsAnimations() {
     avatars.forEach((avatar, i) => {
       tweens.push(
         gsap.to(avatar, {
-          boxShadow: "0 0 20px var(--primary)",
+          opacity: 0.6,
+          scale: 1.05,
           duration: 2, ease: "sine.inOut",
           repeat: -1, yoyo: true, delay: i * 0.3,
+          force3D: true,
         }),
       );
     });

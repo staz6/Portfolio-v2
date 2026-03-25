@@ -54,7 +54,7 @@ export function useContactAnimations() {
       end: "bottom top",
       scrub: 3,
       onUpdate: (self) => {
-        gsap.set(badge, { rotation: self.progress * 360 });
+        gsap.set(badge, { rotation: self.progress * 360, force3D: true });
       },
     });
 
