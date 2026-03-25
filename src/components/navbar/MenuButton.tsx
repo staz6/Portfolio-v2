@@ -11,7 +11,7 @@ export function MenuButton({ isOpen, onClick }: MenuButtonProps) {
   const magneticRef = useMagnetic<HTMLDivElement>({ strength: 0.4 });
 
   return (
-    <div ref={magneticRef} className="relative z-[60]" data-menu-button>
+    <div ref={magneticRef} className="relative -top-1 z-[60]" data-menu-button>
       <button
         onClick={onClick}
         aria-expanded={isOpen}
