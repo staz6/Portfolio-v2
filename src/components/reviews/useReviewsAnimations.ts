@@ -1,16 +1,13 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useHeadingAnimation, REDUCED_MOTION } from "@/hooks/useHeadingAnimation";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export function useReviewsAnimations() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useHeadingAnimation(sectionRef, { prefix: "reviews" });
 
-  // ── Content entrance + star pop-in ──
+  // ── Content entrance via IO ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
@@ -23,27 +20,32 @@ export function useReviewsAnimations() {
       container.querySelectorAll("svg").forEach((star) => allStars.push(star));
     });
 
-    gsap.set(rows, { y: 80, opacity: 0 });
+    gsap.set(rows, { y: 50, opacity: 0 });
     if (allStars.length) gsap.set(allStars, { scale: 0, opacity: 0 });
 
-    const trigger = ScrollTrigger.create({
-      trigger: section.querySelector("[data-reviews-content]"),
-      start: "top 70%",
-      once: true,
-      onEnter: () => {
-        gsap.to(rows, {
-          y: 0, opacity: 1, duration: 1.2, stagger: 0.2, ease: "power4.out",
-        });
-        if (allStars.length) {
-          gsap.to(allStars, {
-            scale: 1, opacity: 1, duration: 0.4, stagger: 0.05,
-            ease: "back.out(1.7)", delay: 0.6,
-          });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+
+          const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+
+          tl.to(rows, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1 });
+
+          if (allStars.length) {
+            tl.to(allStars, {
+              scale: 1, opacity: 1, duration: 0.3, stagger: 0.03,
+              ease: "back.out(1.7)",
+            }, "-=0.3");
+          }
         }
       },
-    });
+      { threshold: 0.05 },
+    );
 
-    return () => trigger.kill();
+    observer.observe(section);
+
+    return () => observer.disconnect();
   }, []);
 
   // ── Avatar glow pulse ──
