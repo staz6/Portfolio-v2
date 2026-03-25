@@ -86,6 +86,15 @@
     --gradient-glow-2: #34D399;
 }
 
+/* ── Hide scrollbar utility ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Holographic gradient effects ── */
 .text-primary {
   background: var(--gradient);

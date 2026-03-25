@@ -170,7 +170,7 @@ export function Hero({
     <section
       ref={sectionRef}
       id="hero"
-      className="noise-overlay relative flex min-h-screen items-center overflow-hidden bg-secondary pt-20"
+      className="noise-overlay relative flex min-h-screen items-center overflow-hidden bg-secondary pb-24 pt-20 lg:pb-0"
     >
       {/* Radial glow blobs — reduced blur on mobile for performance */}
       <div className="pointer-events-none absolute -top-1/4 -left-1/4 h-[50%] w-[50%] rounded-full bg-primary/[0.08] blur-[30px] lg:blur-[80px]" />
