@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -115,12 +116,16 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         </div>
       </div>
 
-      {/* Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <ProjectOverlay project={project} onClose={() => setIsOpen(false)} />
+      {/* Overlay — rendered via Portal to escape card's stacking context */}
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {isOpen && (
+              <ProjectOverlay project={project} onClose={() => setIsOpen(false)} />
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
     </>
   );
 }
@@ -220,7 +225,7 @@ function ProjectOverlay({
             initial="hidden"
             animate="visible"
             onClick={onClose}
-            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition-all duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:rotate-90"
+            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-border/30 bg-card/80 text-foreground/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-primary/20 hover:text-foreground hover:rotate-90"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
