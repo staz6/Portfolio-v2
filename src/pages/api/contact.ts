@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import { Resend } from "resend";
-import { createClient } from "@sanity/client";
 
 export const prerender = false;
 
@@ -45,24 +44,9 @@ export const POST: APIRoute = async ({ request }) => {
       return json({ error: "Please enter a valid email address." }, 400);
     }
 
-    // ── Fetch sender email from Sanity ──
-    let senderFrom = "Portfolio Contact <onboarding@resend.dev>";
-    try {
-      const sanity = createClient({
-        projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || import.meta.env.SANITY_PROJECT_ID,
-        dataset: import.meta.env.PUBLIC_SANITY_DATASET || import.meta.env.SANITY_DATASET || "production",
-        apiVersion: "2024-01-01",
-        useCdn: true,
-      });
-      const profile = await sanity.fetch<{ senderEmail?: string }>(
-        `*[_type == "profile"][0]{ senderEmail }`,
-      );
-      if (profile?.senderEmail) {
-        senderFrom = `Aahad <${profile.senderEmail}>`;
-      }
-    } catch (e) {
-      console.error("Sanity fetch error:", e);
-    }
+    // ── Sender email from env (must be verified domain in Resend) ──
+    const senderEmail = import.meta.env.SENDER_EMAIL || "hello@aahad.dev";
+    const senderFrom = `Aahad <${senderEmail}>`;
 
     // ── Send email via Resend ──
     const resend = new Resend(apiKey);
