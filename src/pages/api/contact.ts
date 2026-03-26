@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { Resend } from "resend";
+import { loadQuery } from "@/sanity/lib/load-query";
 
 export const prerender = false;
 
@@ -44,11 +45,24 @@ export const POST: APIRoute = async ({ request }) => {
       return json({ error: "Please enter a valid email address." }, 400);
     }
 
+    // ── Fetch sender email from Sanity ──
+    let senderFrom = "Portfolio Contact <onboarding@resend.dev>";
+    try {
+      const { data: profile } = await loadQuery<{ senderEmail?: string }>({
+        query: `*[_type == "profile"][0]{ senderEmail }`,
+      });
+      if (profile?.senderEmail) {
+        senderFrom = `Aahad <${profile.senderEmail}>`;
+      }
+    } catch {
+      // Fall back to default if Sanity fetch fails
+    }
+
     // ── Send email via Resend ──
     const resend = new Resend(apiKey);
 
     const { data, error } = await resend.emails.send({
-      from: "Portfolio Contact <onboarding@resend.dev>",
+      from: senderFrom,
       to: contactEmail,
       subject: `New inquiry from ${name.trim()}${company?.trim() ? ` at ${company.trim()}` : ""}`,
       replyTo: email.trim(),
