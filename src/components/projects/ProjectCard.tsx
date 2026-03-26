@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -31,12 +32,13 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
     if (!card) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const col = index % 3; // 0, 1, 2 for 3-col grid
+    const col = index % 3;
     const xFrom = col === 0 ? -40 : col === 2 ? 40 : 0;
     const yFrom = col === 1 ? 80 : 50;
     const rotateFrom = col === 0 ? -3 : col === 2 ? 3 : 0;
 
     const tl = gsap.timeline({
+      defaults: { force3D: true },
       scrollTrigger: {
         trigger: card,
         start: "top 90%",
@@ -49,7 +51,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
     tl.fromTo(
       card,
       { x: xFrom, y: yFrom, opacity: 0, rotate: rotateFrom, scale: 0.9 },
-      { x: 0, y: 0, opacity: 1, rotate: 0, scale: 1, duration: 1, ease: "power3.out" },
+      { x: 0, y: 0, opacity: 1, rotate: 0, scale: 1, ease: "power3.out" },
     );
 
     return () => { tl.kill(); };
@@ -62,7 +64,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         ref={cardRef}
         data-project-item={index}
         onClick={() => setIsOpen(true)}
-        className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/20 bg-card will-change-transform transition-[border-color,box-shadow] duration-300 hover:border-primary/30 hover:shadow-[0_0_30px_rgba(255,107,43,0.06)]"
+        className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/20 bg-card will-change-transform transition-[border-color] duration-300 hover:border-primary/30"
       >
         {/* Image */}
         <div className="relative overflow-hidden">
@@ -70,7 +72,9 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
             src={project.thumbnail}
             alt={project.name}
             loading="lazy"
-            className="aspect-[16/10] w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+            width={800}
+            height={500}
+            className="aspect-[16/10] w-full object-cover object-top transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
           />
           <span className="absolute right-4 top-4 font-heading text-3xl font-black text-white/[0.08] transition-colors duration-300 group-hover:text-primary/20">
             {String(index + 1).padStart(2, "0")}
@@ -112,12 +116,16 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         </div>
       </div>
 
-      {/* Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <ProjectOverlay project={project} onClose={() => setIsOpen(false)} />
+      {/* Overlay — rendered via Portal to escape card's stacking context */}
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {isOpen && (
+              <ProjectOverlay project={project} onClose={() => setIsOpen(false)} />
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
     </>
   );
 }
@@ -201,6 +209,9 @@ function ProjectOverlay({
           <img
             src={project.thumbnail}
             alt={project.name}
+            loading="lazy"
+            width={800}
+            height={500}
             className="absolute inset-0 h-full w-full object-cover object-top"
           />
         </motion.div>
@@ -214,7 +225,7 @@ function ProjectOverlay({
             initial="hidden"
             animate="visible"
             onClick={onClose}
-            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition-all duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:rotate-90"
+            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-border/30 bg-card/80 text-foreground/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-primary/20 hover:text-foreground hover:rotate-90"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

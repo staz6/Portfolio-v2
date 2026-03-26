@@ -25,10 +25,10 @@ export function MenuLink({ label, href, index, onClick }: MenuLinkProps) {
 
         <div className="h-[11vw] overflow-hidden md:h-[5.5vw] lg:h-[4.4vw]">
           <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-1/2">
-            <span className="font-heading text-[10vw] font-bold uppercase leading-[1.1] tracking-tight md:text-[5vw] lg:text-[4vw]">
+            <span className="bg-[linear-gradient(135deg,#A78BFA,#60A5FA,#34D399)] bg-clip-text font-heading text-[10vw] font-bold uppercase leading-[1.1] tracking-tight text-transparent md:text-[5vw] lg:text-[4vw]">
               {label}
             </span>
-            <span className="font-heading text-[10vw] font-bold uppercase leading-[1.1] tracking-tight md:text-[5vw] lg:text-[4vw]">
+            <span className="bg-[linear-gradient(135deg,#A78BFA,#60A5FA,#34D399)] bg-clip-text font-heading text-[10vw] font-bold uppercase leading-[1.1] tracking-tight text-transparent md:text-[5vw] lg:text-[4vw]">
               {label}
             </span>
           </div>

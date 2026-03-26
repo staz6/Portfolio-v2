@@ -1,16 +1,13 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useHeadingAnimation, REDUCED_MOTION } from "@/hooks/useHeadingAnimation";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export function useProjectsAnimations() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  useHeadingAnimation(sectionRef, { prefix: "projects", charStagger: 0.15 });
+  useHeadingAnimation(sectionRef, { prefix: "projects", charStagger: 0.1 });
 
-  // ── Cards staggered entrance ──
+  // ── Cards entrance via IO — each card observed individually ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
@@ -18,26 +15,26 @@ export function useProjectsAnimations() {
     const items = section.querySelectorAll("[data-project-item]");
     if (!items.length) return;
 
-    gsap.set(items, { y: 100, opacity: 0, scale: 0.95 });
+    gsap.set(items, { y: 80, opacity: 0, scale: 0.95 });
 
-    const triggers: ScrollTrigger[] = [];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target);
+            gsap.to(entry.target, {
+              y: 0, opacity: 1, scale: 1, duration: 0.8,
+              ease: "power3.out",
+            });
+          }
+        });
+      },
+      { threshold: 0.1 },
+    );
 
-    items.forEach((item, i) => {
-      const trigger = ScrollTrigger.create({
-        trigger: item,
-        start: "top 85%",
-        once: true,
-        onEnter: () => {
-          gsap.to(item, {
-            y: 0, opacity: 1, scale: 1, duration: 1,
-            delay: (i % 2) * 0.15, ease: "power3.out",
-          });
-        },
-      });
-      triggers.push(trigger);
-    });
+    items.forEach((item) => observer.observe(item));
 
-    return () => triggers.forEach((t) => t.kill());
+    return () => observer.disconnect();
   }, []);
 
   return sectionRef;

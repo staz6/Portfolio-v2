@@ -1,13 +1,9 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useHeadingAnimation, REDUCED_MOTION } from "@/hooks/useHeadingAnimation";
 
-gsap.registerPlugin(ScrollTrigger);
-
 /**
- * About section animations. Uses shared heading animation + section-specific
- * scene entrance and optional variant steps (pills, skill words, etc.).
+ * About section animations — all entrances via IntersectionObserver.
  */
 export function useAboutAnimations(
   buildVariantSteps?: (tl: gsap.core.Timeline, section: HTMLElement) => void,
@@ -15,10 +11,9 @@ export function useAboutAnimations(
   const sectionRef = useRef<HTMLElement>(null);
   const entranceTl = useRef<gsap.core.Timeline | null>(null);
 
-  // Shared heading entrance + parallax
-  useHeadingAnimation(sectionRef, { prefix: "about", charStagger: 0.15 });
+  useHeadingAnimation(sectionRef, { prefix: "about", charStagger: 0.1 });
 
-  // ── Scene + variant entrance (fires once) ──
+  // ── Scene + variant entrance via IO ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -39,31 +34,34 @@ export function useAboutAnimations(
 
     const tl = gsap.timeline({
       paused: true,
-      defaults: { ease: "power4.out", duration: 0.8 },
+      defaults: { ease: "power4.out", duration: 0.6 },
     });
     entranceTl.current = tl;
 
-    // 3D scene fade in + dispatch scale event to Three.js
     const sceneEl = section.querySelector("[data-about-scene]");
     if (sceneEl) {
       tl.to(sceneEl, {
-        opacity: 1, duration: 1, ease: "power2.out",
+        opacity: 1, duration: 0.8, ease: "power2.out",
         onStart: () => { window.dispatchEvent(new Event("about-scene-enter")); },
       });
     }
 
-    // Variant-specific steps (pills, skill words, etc.)
     buildVariantSteps?.(tl, section);
 
-    const trigger = ScrollTrigger.create({
-      trigger: section,
-      start: "top 75%",
-      once: true,
-      onEnter: () => tl.play(),
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+          tl.play();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    observer.observe(section);
 
     return () => {
-      trigger.kill();
+      observer.disconnect();
       entranceTl.current?.kill();
     };
   }, []);

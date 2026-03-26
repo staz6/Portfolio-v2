@@ -8,9 +8,9 @@ gsap.registerPlugin(ScrollTrigger);
 export function useContactAnimations() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  useHeadingAnimation(sectionRef, { prefix: "contact", charDuration: 1.2, charStagger: 0.15 });
+  useHeadingAnimation(sectionRef, { prefix: "contact", charDuration: 0.8, charStagger: 0.1 });
 
-  // ── Content staggered entrance ──
+  // ── Content entrance via IO ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
@@ -18,23 +18,29 @@ export function useContactAnimations() {
     const items = section.querySelectorAll("[data-contact-reveal]");
     if (!items.length) return;
 
-    gsap.set(items, { y: 80, opacity: 0 });
+    gsap.set(items, { y: 50, opacity: 0 });
 
-    const trigger = ScrollTrigger.create({
-      trigger: section.querySelector("[data-contact-content]"),
-      start: "top 80%",
-      once: true,
-      onEnter: () => {
-        gsap.to(items, {
-          y: 0, opacity: 1, duration: 1.2, stagger: 0.2, ease: "power4.out",
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target);
+            gsap.to(entry.target, {
+              y: 0, opacity: 1, duration: 0.8,
+              ease: "power4.out",
+            });
+          }
         });
       },
-    });
+      { threshold: 0.1 },
+    );
 
-    return () => trigger.kill();
+    items.forEach((item) => observer.observe(item));
+
+    return () => observer.disconnect();
   }, []);
 
-  // ── Rotating badge accelerate on scroll ──
+  // ── Rotating badge accelerate on scroll (keep as ScrollTrigger) ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
@@ -48,7 +54,7 @@ export function useContactAnimations() {
       end: "bottom top",
       scrub: 3,
       onUpdate: (self) => {
-        gsap.set(badge, { rotation: self.progress * 360 });
+        gsap.set(badge, { rotation: self.progress * 360, force3D: true });
       },
     });
 

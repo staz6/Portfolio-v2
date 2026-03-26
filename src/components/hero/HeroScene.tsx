@@ -2,7 +2,6 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
-import type { Theme } from "@/hooks/useTheme";
 import { ParticleEmitter } from "./ParticleEmitter";
 import { WireframeShape } from "./WireframeShape";
 import { SkillNetwork } from "./SkillNetwork";
@@ -60,33 +59,12 @@ function Scene({ color }: { color: string }) {
 
 /* ── Exported wrapper ── */
 
-const SCENE_COLORS: Record<Theme, string> = {
-  orange: "#ff6b2b",
-  "orange-light": "#c45a20",
-  "mono-dark": "#b0b0b0",
-  "mono-light": "#333333",
-};
+const SCENE_COLOR = "#60A5FA"; // Holographic blue
 
 export function HeroScene() {
-  const [color, setColor] = useState(SCENE_COLORS.orange);
+  const [color] = useState(SCENE_COLOR);
   const containerRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const updateFromTheme = () => {
-      const theme = (document.documentElement.getAttribute("data-theme") ?? "orange") as Theme;
-      setColor(SCENE_COLORS[theme] ?? SCENE_COLORS.orange);
-    };
-    updateFromTheme();
-
-    const observer = new MutationObserver(updateFromTheme);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   // Pause canvas when scrolled past hero
   useEffect(() => {

@@ -1,23 +1,19 @@
 import { motion } from "framer-motion";
-import { Github, Linkedin, Twitter } from "lucide-react";
+import { Github, Linkedin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NavItem } from "./Navbar";
-import type { Theme } from "@/hooks/useTheme";
 import { MenuLink } from "./MenuLink";
-import { ThemeToggle } from "./ThemeToggle";
 
 interface FullscreenMenuProps {
   items: readonly NavItem[];
-  theme: Theme;
-  selectTheme: (theme: Theme) => void;
   onNavigate: () => void;
 }
 
-const MENU_THEME: Record<Theme, { text: string; textMuted: string; bg: string; border: string }> = {
-  orange: { text: "text-[#ff6b2b]", textMuted: "text-[#ff6b2b]/50 hover:text-[#ff6b2b]", bg: "bg-[#1a1a1a]", border: "border-[#ff6b2b]/20" },
-  "orange-light": { text: "text-[#c45a20]", textMuted: "text-[#c45a20]/50 hover:text-[#c45a20]", bg: "bg-[#faf5f0]", border: "border-[#c45a20]/20" },
-  "mono-dark": { text: "text-background", textMuted: "text-background/50 hover:text-background", bg: "bg-foreground", border: "border-background/10" },
-  "mono-light": { text: "text-background", textMuted: "text-background/50 hover:text-background", bg: "bg-foreground", border: "border-background/10" },
+const MENU_COLORS = {
+  text: "text-[#A78BFA]",
+  textMuted: "text-[#A78BFA]/50 hover:text-[#A78BFA]",
+  bg: "bg-[#09090b]",
+  border: "border-[#A78BFA]/20",
 };
 
 const menuEase = [0.76, 0, 0.24, 1] as const;
@@ -70,18 +66,15 @@ const footerVariants = {
 };
 
 const socialLinks = [
-  { icon: Github, href: "https://github.com", label: "GitHub" },
-  { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-  { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+  { icon: Github, href: "https://github.com/staz6", label: "GitHub" },
+  { icon: Linkedin, href: "https://www.linkedin.com/in/muhammad-aahad-568aaa179/", label: "LinkedIn" },
 ];
 
 export function FullscreenMenu({
   items,
-  theme,
-  selectTheme,
   onNavigate,
 }: FullscreenMenuProps) {
-  const colors = MENU_THEME[theme];
+  const colors = MENU_COLORS;
 
   const handleNavigate = (href: string) => {
     onNavigate();
@@ -162,7 +155,6 @@ export function FullscreenMenu({
           >
             hello@aahad.dev
           </a>
-          <ThemeToggle theme={theme} selectTheme={selectTheme} />
         </div>
       </motion.footer>
     </motion.div>

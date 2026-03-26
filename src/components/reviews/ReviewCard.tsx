@@ -53,6 +53,7 @@ export function ReviewCard({ review, index }: ReviewCardProps) {
             data-review-avatar={index}
             src={avatarUrl}
             alt={name}
+            loading="lazy"
             className="h-12 w-12 shrink-0 rounded-full border border-primary/30 object-cover"
           />
         ) : (
