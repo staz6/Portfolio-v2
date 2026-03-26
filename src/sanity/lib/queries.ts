@@ -5,6 +5,7 @@ export const PROFILE_QUERY = `
     shortDescription,
     location,
     availability,
+    senderEmail,
     stats {
       yearsExperience,
       completedProjects,
