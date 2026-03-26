@@ -41,6 +41,13 @@ export default defineType({
       description: "Controls the availability badge.",
     }),
     defineField({
+      name: "senderEmail",
+      title: "Sender Email",
+      type: "string",
+      description: "The 'from' email for the contact form (e.g., 'hello@aahad.dev'). Must be a verified domain in Resend.",
+      validation: (rule) => rule.email(),
+    }),
+    defineField({
       name: "stats",
       title: "Statistics",
       type: "object",
