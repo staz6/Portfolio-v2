@@ -203,8 +203,59 @@ function Nebula() {
   );
 }
 
+/* ── Mobile card list fallback ── */
+function MobileExperience({ experiences }: { experiences: ExperienceProps[] }) {
+  return (
+    <div className="space-y-6 px-6 pb-24">
+      {experiences.map((exp, i) => (
+        <div key={exp.companyName} className="rounded-3xl border border-primary/20 bg-card/90 p-6 shadow-2xl backdrop-blur-xl">
+          <div className="mb-4 flex items-center gap-4">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-lg font-bold text-white">
+              {String(i + 1).padStart(2, "0")}
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold text-foreground">{exp.companyName}</h3>
+              <p className="text-sm font-medium text-primary">{exp.position}</p>
+            </div>
+            <span className="font-mono text-sm text-primary">{exp.year}</span>
+          </div>
+
+          <p className="mb-4 text-xs text-muted-foreground">{exp.startDate} — {exp.endDate ?? "Present"}</p>
+
+          <div className="space-y-3">
+            {exp.highlights.map((h, j) => (
+              <div key={j} className="flex items-start gap-2.5">
+                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: "linear-gradient(135deg, #A78BFA, #60A5FA)" }} />
+                <p className="text-sm leading-relaxed text-foreground/70">{h}</p>
+              </div>
+            ))}
+          </div>
+
+          {exp.isCurrent && (
+            <div className="mt-4 flex items-center gap-2">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+              <span className="text-xs font-medium text-primary">Currently working here</span>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function OrbitalSystem({ experiences }: { experiences: ExperienceProps[] }) {
   const [active, setActive] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  if (isMobile) return <MobileExperience experiences={experiences} />;
+
   return (
     <div className="relative pb-24">
       <div className="relative h-[600px] lg:h-[700px]" style={{ overflow: "visible" }}>
