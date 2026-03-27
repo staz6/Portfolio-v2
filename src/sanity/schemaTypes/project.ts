@@ -56,7 +56,20 @@ export default defineType({
       name: "order",
       title: "Display Order",
       type: "number",
-      description: "Lower numbers appear first.",
+      description: "Lower numbers appear first. Each project must have a unique number.",
+      validation: (rule) =>
+        rule.required().custom(async (value, context) => {
+          if (value === undefined) return true;
+          const client = context.getClient({ apiVersion: "2024-01-01" });
+          const id = context.document?._id?.replace(/^drafts\./, "");
+          const conflicts = await client.fetch<{ name: string }[]>(
+            `*[_type == "project" && order == $order && !(_id in [$id, "drafts." + $id])]{ name }`,
+            { order: value, id },
+          );
+          return conflicts.length > 0
+            ? `Order ${value} is already used by "${conflicts[0].name}".`
+            : true;
+        }),
     }),
   ],
   orderings: [
