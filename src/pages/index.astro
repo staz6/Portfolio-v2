@@ -103,12 +103,12 @@ const reviewsData = reviews?.length ? mapReviews(reviews) : [];
 
     <Projects client:visible projects={projectsData} />
 
-    <Experience client:idle experiences={experiencesData} />
+    <Experience client:visible experiences={experiencesData} />
 
-    <Reviews client:idle reviews={reviewsData} />
+    <Reviews client:visible reviews={reviewsData} />
 
     <Contact
-      client:idle
+      client:visible
       socialLinks={contactProps?.socialLinks}
       footerText={contactProps?.footerText}
     />
