@@ -89,11 +89,75 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
   );
 }
 
-function Dust() {
-  const pos = useMemo(() => { const p = new Float32Array(100 * 3); for (let i = 0; i < 100; i++) { p[i*3]=(Math.random()-0.5)*14; p[i*3+1]=(Math.random()-0.5)*8; p[i*3+2]=(Math.random()-0.5)*6; } return p; }, []);
-  const ref = useRef<THREE.Points>(null);
-  useFrame((_, d) => { if (ref.current) ref.current.rotation.y += d * 0.008; });
-  return <points ref={ref}><bufferGeometry><bufferAttribute attach="attributes-position" args={[pos, 3]} /></bufferGeometry><pointsMaterial size={0.02} color="#A78BFA" transparent opacity={0.3} sizeAttenuation /></points>;
+/* ── Starfield — distant stars + closer particles ── */
+function Starfield() {
+  const { farPos, farSizes, nearPos } = useMemo(() => {
+    // Far stars — tiny, spread wide
+    const fp = new Float32Array(300 * 3);
+    const fs = new Float32Array(300);
+    for (let i = 0; i < 300; i++) {
+      fp[i * 3] = (Math.random() - 0.5) * 30;
+      fp[i * 3 + 1] = (Math.random() - 0.5) * 20;
+      fp[i * 3 + 2] = (Math.random() - 0.5) * 20 - 5;
+      fs[i] = Math.random() * 0.04 + 0.01;
+    }
+    // Near particles — slightly larger, closer
+    const np = new Float32Array(80 * 3);
+    for (let i = 0; i < 80; i++) {
+      np[i * 3] = (Math.random() - 0.5) * 14;
+      np[i * 3 + 1] = (Math.random() - 0.5) * 8;
+      np[i * 3 + 2] = (Math.random() - 0.5) * 8;
+    }
+    return { farPos: fp, farSizes: fs, nearPos: np };
+  }, []);
+
+  const farRef = useRef<THREE.Points>(null);
+  const nearRef = useRef<THREE.Points>(null);
+
+  useFrame((_, d) => {
+    if (farRef.current) farRef.current.rotation.y += d * 0.003;
+    if (nearRef.current) nearRef.current.rotation.y += d * 0.01;
+  });
+
+  return (
+    <>
+      {/* Distant stars */}
+      <points ref={farRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[farPos, 3]} />
+          <bufferAttribute attach="attributes-size" args={[farSizes, 1]} />
+        </bufferGeometry>
+        <pointsMaterial size={0.03} color="#ffffff" transparent opacity={0.5} sizeAttenuation />
+      </points>
+      {/* Near floating particles */}
+      <points ref={nearRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[nearPos, 3]} />
+        </bufferGeometry>
+        <pointsMaterial size={0.025} color="#A78BFA" transparent opacity={0.35} sizeAttenuation />
+      </points>
+    </>
+  );
+}
+
+/* ── Nebula glow — soft colored sphere behind the scene ── */
+function Nebula() {
+  return (
+    <group position={[0, 0, -6]}>
+      <mesh>
+        <sphereGeometry args={[5, 16, 16]} />
+        <meshBasicMaterial color="#A78BFA" transparent opacity={0.015} side={THREE.BackSide} />
+      </mesh>
+      <mesh position={[3, 1, -2]}>
+        <sphereGeometry args={[3, 16, 16]} />
+        <meshBasicMaterial color="#60A5FA" transparent opacity={0.012} side={THREE.BackSide} />
+      </mesh>
+      <mesh position={[-3, -1, -1]}>
+        <sphereGeometry args={[3.5, 16, 16]} />
+        <meshBasicMaterial color="#818CF8" transparent opacity={0.01} side={THREE.BackSide} />
+      </mesh>
+    </group>
+  );
 }
 
 export function OrbitalSystem({ experiences }: { experiences: ExperienceProps[] }) {
@@ -106,7 +170,8 @@ export function OrbitalSystem({ experiences }: { experiences: ExperienceProps[] 
             <ambientLight intensity={0.35} />
             <pointLight position={[0, 3, 5]} intensity={0.45} color="#A78BFA" />
             <pointLight position={[-3, -2, 3]} intensity={0.25} color="#60A5FA" />
-            <Dust />
+            <Nebula />
+            <Starfield />
             <CentralOrb />
             {experiences.map((_, i) => <OrbitRing key={i} radius={1.8 + i * 0.8} opacity={0.2 + i * 0.05} />)}
             {experiences.map((exp, i) => (
