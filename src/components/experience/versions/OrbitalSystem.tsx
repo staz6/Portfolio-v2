@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, Suspense } from "react";
+import { useState, useRef, useMemo, useEffect, useCallback, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, Billboard, MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
@@ -37,7 +37,38 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
   exp: ExperienceProps; index: number; total: number; radius: number; speed: number; isActive: boolean; onSelect: () => void;
 }) {
   const ref = useRef<THREE.Group>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
   const startA = (index / total) * Math.PI * 2;
+
+  const checkOverflow = useCallback(() => {
+    const el = scrollRef.current;
+    if (el) setIsOverflowing(el.scrollHeight > el.clientHeight);
+  }, []);
+
+  useEffect(() => {
+    if (isActive) {
+      checkOverflow();
+      // Recheck after Html component renders inside the canvas
+      const t = setTimeout(checkOverflow, 200);
+      return () => clearTimeout(t);
+    }
+  }, [isActive, checkOverflow]);
+
+  // Prevent scroll from bubbling to the page when inside the card
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !isActive) return;
+    const onWheel = (e: WheelEvent) => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const atTop = scrollTop === 0 && e.deltaY < 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 1 && e.deltaY > 0;
+      if (atTop || atBottom) e.preventDefault();
+      e.stopPropagation();
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [isActive]);
 
   useFrame(({ clock, camera }) => {
     if (!ref.current) return;
@@ -73,12 +104,24 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
             <h3 className="mt-1 font-heading text-sm font-bold text-foreground">{exp.companyName}</h3>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{exp.position}</p>
             {isActive && (
-              <div className="mt-2 space-y-1 border-t border-border/10 pt-2">
-                <p className="text-[9px] text-muted-foreground/50">{exp.startDate} — {exp.endDate ?? "Present"}</p>
-                {exp.highlights.slice(0, 3).map((h, j) => (
-                  <p key={j} className="text-[11px] leading-relaxed text-foreground/55">{h.length > 85 ? h.slice(0, 85) + "..." : h}</p>
-                ))}
-                {exp.highlights.length > 3 && <p className="text-[9px] text-primary/60">+{exp.highlights.length - 3} more</p>}
+              <div className="relative mt-2 border-t border-border/10 pt-2">
+                <div ref={scrollRef} className={`max-h-52 space-y-1 overflow-y-auto pr-1 ${isOverflowing ? "pb-10" : ""}`} style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+                  <p className="text-[9px] text-muted-foreground/50">{exp.startDate} — {exp.endDate ?? "Present"}</p>
+                  {exp.highlights.map((h, j) => (
+                    <div key={j} className="flex items-start gap-2">
+                      <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: "linear-gradient(135deg, #A78BFA, #60A5FA)" }} />
+                      <p className="text-[11px] leading-relaxed text-foreground/55">{h}</p>
+                    </div>
+                  ))}
+                </div>
+                {/* Fade hint + scroll indicator */}
+                {isOverflowing && (
+                  <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex h-10 items-end justify-center bg-gradient-to-t from-card/90 to-transparent">
+                    <span className="mb-1 flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[8px] font-medium tracking-wider text-primary shadow-[0_0_10px_rgba(167,139,250,0.3)]">
+                      scroll ↓
+                    </span>
+                  </div>
+                )}
               </div>
             )}
             {exp.isCurrent && <div className="mt-1.5 flex items-center gap-1"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" /><span className="text-[9px] text-primary">Current</span></div>}
