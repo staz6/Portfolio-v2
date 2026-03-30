@@ -18,7 +18,7 @@ export function useContactAnimations() {
     if (!content) return;
 
     const onHeadingDone = () => {
-      gsap.to(content, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" });
+      gsap.to(content, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" });
     };
 
     if ((section as any).__headingDone) { onHeadingDone(); return; }

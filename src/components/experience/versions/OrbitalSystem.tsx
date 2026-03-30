@@ -42,33 +42,14 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
   const [isOverflowing, setIsOverflowing] = useState(false);
   const startA = (index / total) * Math.PI * 2;
 
-  const checkOverflow = useCallback(() => {
-    const el = scrollRef.current;
-    if (el) setIsOverflowing(el.scrollHeight > el.clientHeight);
-  }, []);
-
   useEffect(() => {
     if (isActive) {
-      checkOverflow();
-      // Recheck after Html component renders inside the canvas
-      const t = setTimeout(checkOverflow, 200);
+      const t = setTimeout(() => {
+        const el = scrollRef.current;
+        if (el) setIsOverflowing(el.scrollHeight > el.clientHeight);
+      }, 200);
       return () => clearTimeout(t);
     }
-  }, [isActive, checkOverflow]);
-
-  // Prevent scroll from bubbling to the page when inside the card
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el || !isActive) return;
-    const onWheel = (e: WheelEvent) => {
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      const atTop = scrollTop === 0 && e.deltaY < 0;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 1 && e.deltaY > 0;
-      if (atTop || atBottom) e.preventDefault();
-      e.stopPropagation();
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
   }, [isActive]);
 
   useFrame(({ clock, camera }) => {
@@ -106,7 +87,11 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{exp.position}</p>
             {isActive && (
               <div className="relative mt-2 border-t border-border/10 pt-2">
-                <div ref={scrollRef} className={`max-h-36 space-y-1 overflow-y-auto pr-1 lg:max-h-44 ${isOverflowing ? "pb-10" : ""}`} style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+                <div
+                  ref={scrollRef}
+                  className={`max-h-36 space-y-1 overflow-y-auto overscroll-contain touch-pan-y pr-1 lg:max-h-44 ${isOverflowing ? "pb-10" : ""}`}
+                  style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+                >
                   <p className="text-[9px] text-muted-foreground/50">{exp.startDate} — {exp.endDate ?? "Present"}</p>
                   {exp.highlights.map((h, j) => (
                     <div key={j} className="flex items-start gap-2">
@@ -115,7 +100,6 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
                     </div>
                   ))}
                 </div>
-                {/* Fade hint + scroll indicator */}
                 {isOverflowing && (
                   <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex h-10 items-end justify-center bg-gradient-to-t from-card/90 to-transparent">
                     <span className="mb-1 flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[8px] font-medium tracking-wider text-primary shadow-[0_0_10px_rgba(167,139,250,0.3)]">
