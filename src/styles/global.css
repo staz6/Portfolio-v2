@@ -120,8 +120,13 @@ h1, h2, h3 {
 }
 
 @layer base {
+  html.is-loading,
+  html.is-loading body {
+    overflow: hidden !important;
+    }
   html {
     scroll-behavior: smooth;
+    overflow-y: scroll;
     }
   * {
     @apply border-border outline-ring/50;

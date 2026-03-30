@@ -91,9 +91,11 @@ export function Navbar() {
   // Body scroll lock when menu is open (unlock handled by AnimatePresence onExitComplete)
   useEffect(() => {
     if (menuOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     }
     return () => {
+      document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
@@ -102,6 +104,7 @@ export function Navbar() {
     <>
       {/* Fullscreen menu overlay */}
       <AnimatePresence onExitComplete={() => {
+        document.documentElement.style.overflow = "";
         document.body.style.overflow = "";
       }}>
         {menuOpen && (

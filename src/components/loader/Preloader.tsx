@@ -8,8 +8,6 @@ export function Preloader() {
   const [removed, setRemoved] = useState(false);
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-
     const top = topRef.current;
     const bottom = bottomRef.current;
     const counter = counterRef.current;
@@ -48,15 +46,15 @@ export function Preloader() {
       "<",
     );
 
-    // 4. Cleanup
+    // 4. Cleanup — remove loading lock, enable scrolling
     tl.call(() => {
-      document.body.style.overflow = "";
+      document.documentElement.classList.remove("is-loading");
       setRemoved(true);
     });
 
     return () => {
       tl.kill();
-      document.body.style.overflow = "";
+      document.documentElement.classList.remove("is-loading");
     };
   }, []);
 
