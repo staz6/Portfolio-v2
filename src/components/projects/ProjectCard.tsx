@@ -64,7 +64,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         ref={cardRef}
         data-project-item={index}
         onClick={() => setIsOpen(true)}
-        className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/20 bg-card will-change-transform transition-[border-color] duration-300 hover:border-primary/30"
+        className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/20 bg-card opacity-0 will-change-transform transition-[border-color] duration-300 hover:border-primary/30"
       >
         {/* Image */}
         <div className="relative overflow-hidden">

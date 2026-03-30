@@ -11,7 +11,9 @@ interface HeadingAnimationOptions {
 }
 
 /**
- * Section heading entrance via IntersectionObserver (not ScrollTrigger).
+ * Section heading entrance via IntersectionObserver.
+ * Observes the heading label element (not the section) so it triggers
+ * when the heading is actually visible, not when the tall section barely enters.
  * Dispatches "heading-done" on the section when the animation completes.
  * If the user scrolls past fast, skips animation and fires immediately.
  */
@@ -19,12 +21,11 @@ export function useHeadingAnimation(
   sectionRef: React.RefObject<HTMLElement | null>,
   options: HeadingAnimationOptions,
 ) {
-  const { prefix, charStagger = 0.08, charDuration = 0.7 } = options;
+  const { prefix, charStagger = 0.04, charDuration = 0.45 } = options;
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) {
-      // Fire immediately for reduced-motion so content hooks can reveal
       section?.dispatchEvent(new Event("heading-done", { bubbles: false }));
       return;
     }
@@ -44,6 +45,9 @@ export function useHeadingAnimation(
 
     let tl: gsap.core.Timeline | null = null;
 
+    // Observe the label element — triggers when heading is actually on screen
+    const target = label || section;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -55,22 +59,20 @@ export function useHeadingAnimation(
           });
 
           if (label) {
-            tl.to(label, { y: 0, opacity: 1, duration: 0.4 });
+            tl.to(label, { y: 0, opacity: 1, duration: 0.25 });
           }
           if (chars.length) {
             tl.to(chars, { y: "0%", duration: charDuration, stagger: charStagger }, "-=0.2");
           }
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.1, rootMargin: "-15% 0px" },
     );
 
-    // Second observer: if section leaves viewport before heading finishes,
-    // skip the animation and show everything immediately
+    // If user scrolls past the section before heading finishes, skip instantly
     const leaveObserver = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting && tl && !fired) {
-          // User scrolled past — complete instantly
           tl.progress(1);
           fireHeadingDone();
           leaveObserver.disconnect();
@@ -79,7 +81,7 @@ export function useHeadingAnimation(
       { threshold: 0 },
     );
 
-    observer.observe(section);
+    observer.observe(target);
     leaveObserver.observe(section);
 
     return () => {

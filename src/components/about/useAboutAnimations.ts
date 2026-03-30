@@ -5,7 +5,7 @@ import { useHeadingAnimation, REDUCED_MOTION } from "@/hooks/useHeadingAnimation
 export function useAboutAnimations() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  useHeadingAnimation(sectionRef, { prefix: "about", charStagger: 0.1 });
+  useHeadingAnimation(sectionRef, { prefix: "about" });
 
   useEffect(() => {
     const section = sectionRef.current;

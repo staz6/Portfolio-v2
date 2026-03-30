@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 export function useContactAnimations() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  useHeadingAnimation(sectionRef, { prefix: "contact", charDuration: 0.8, charStagger: 0.1 });
+  useHeadingAnimation(sectionRef, { prefix: "contact" });
 
   useEffect(() => {
     const section = sectionRef.current;
