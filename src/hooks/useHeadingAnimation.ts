@@ -1,5 +1,8 @@
 import { useEffect } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const REDUCED_MOTION = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -11,11 +14,9 @@ interface HeadingAnimationOptions {
 }
 
 /**
- * Section heading entrance via IntersectionObserver.
- * Observes the heading label element (not the section) so it triggers
- * when the heading is actually visible, not when the tall section barely enters.
- * Dispatches "heading-done" on the section when the animation completes.
- * If the user scrolls past fast, skips animation and fires immediately.
+ * Section heading + content entrance using GSAP ScrollTrigger.
+ * Single timeline: heading animates first, then content follows.
+ * ScrollTrigger handles fast scroll, slow scroll, and all edge cases.
  */
 export function useHeadingAnimation(
   sectionRef: React.RefObject<HTMLElement | null>,
@@ -25,68 +26,42 @@ export function useHeadingAnimation(
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section || REDUCED_MOTION()) {
-      section?.dispatchEvent(new Event("heading-done", { bubbles: false }));
-      return;
-    }
+    if (!section) return;
 
     const label = section.querySelector(`[data-${prefix}-label]`);
     const chars = section.querySelectorAll(`[data-${prefix}-char]`);
 
+    if (REDUCED_MOTION()) {
+      if (label) gsap.set(label, { opacity: 1, y: 0 });
+      if (chars.length) gsap.set(chars, { y: "0%" });
+      section.dispatchEvent(new Event("heading-done", { bubbles: false }));
+      return;
+    }
+
     if (label) gsap.set(label, { opacity: 0, y: 15 });
     if (chars.length) gsap.set(chars, { y: "110%" });
 
-    let fired = false;
-    const fireHeadingDone = () => {
-      if (fired) return;
-      fired = true;
-      section.dispatchEvent(new Event("heading-done", { bubbles: false }));
-    };
-
-    let tl: gsap.core.Timeline | null = null;
-
-    // Observe the label element — triggers when heading is actually on screen
-    const target = label || section;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          observer.disconnect();
-
-          tl = gsap.timeline({
-            defaults: { ease: "power4.out" },
-            onComplete: fireHeadingDone,
-          });
-
-          if (label) {
-            tl.to(label, { y: 0, opacity: 1, duration: 0.25 });
-          }
-          if (chars.length) {
-            tl.to(chars, { y: "0%", duration: charDuration, stagger: charStagger }, "-=0.2");
-          }
-        }
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: "top 75%",
+        once: true,
       },
-      { threshold: 0.1, rootMargin: "-15% 0px" },
-    );
-
-    // If user scrolls past the section before heading finishes, skip instantly
-    const leaveObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting && tl && !fired) {
-          tl.progress(1);
-          fireHeadingDone();
-          leaveObserver.disconnect();
-        }
+      onComplete: () => {
+        (section as any).__headingDone = true;
+        section.dispatchEvent(new Event("heading-done", { bubbles: false }));
       },
-      { threshold: 0 },
-    );
+    });
 
-    observer.observe(target);
-    leaveObserver.observe(section);
+    if (label) {
+      tl.to(label, { y: 0, opacity: 1, duration: 0.25, ease: "power4.out" });
+    }
+    if (chars.length) {
+      tl.to(chars, { y: "0%", duration: charDuration, stagger: charStagger, ease: "power4.out" }, "-=0.2");
+    }
 
     return () => {
-      observer.disconnect();
-      leaveObserver.disconnect();
+      tl.kill();
     };
   }, []);
 }

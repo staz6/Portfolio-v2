@@ -11,8 +11,8 @@ export function useAboutAnimations() {
     const section = sectionRef.current;
     if (!section) return;
 
-    const sceneWrap = section.querySelector("[data-about-scene-wrap]");
-    const content = section.querySelector("[data-about-content]");
+    const sceneWrap = section.querySelector<HTMLElement>("[data-about-scene-wrap]");
+    const content = section.querySelector<HTMLElement>("[data-about-content]");
 
     if (REDUCED_MOTION()) {
       gsap.set(
@@ -27,24 +27,25 @@ export function useAboutAnimations() {
       return;
     }
 
-    const reveal = () => {
+    const onHeadingDone = () => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       if (sceneWrap) {
         tl.to(sceneWrap, {
-          opacity: 1, y: 0, duration: 0.3,
+          opacity: 1, y: 0, duration: 0.5,
           onStart: () => { window.dispatchEvent(new Event("about-scene-enter")); },
         });
       }
 
       if (content) {
-        tl.to(content, { opacity: 1, y: 0, duration: 0.3 }, "<");
+        tl.to(content, { opacity: 1, y: 0, duration: 0.5 }, "<");
       }
     };
 
-    section.addEventListener("heading-done", reveal, { once: true });
+    if ((section as any).__headingDone) { onHeadingDone(); return; }
+    section.addEventListener("heading-done", onHeadingDone, { once: true });
 
-    return () => section.removeEventListener("heading-done", reveal);
+    return () => section.removeEventListener("heading-done", onHeadingDone);
   }, []);
 
   return sectionRef;

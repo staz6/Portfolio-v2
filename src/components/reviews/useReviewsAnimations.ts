@@ -11,18 +11,17 @@ export function useReviewsAnimations() {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
 
-    const content = section.querySelector("[data-reviews-content]");
+    const content = section.querySelector<HTMLElement>("[data-reviews-content]");
     if (!content) return;
 
-    gsap.set(content, { opacity: 0 });
-
-    const reveal = () => {
-      gsap.to(content, { opacity: 1, duration: 0.2, ease: "power2.out" });
+    const onHeadingDone = () => {
+      gsap.to(content, { opacity: 1, duration: 0.4, ease: "power2.out" });
     };
 
-    section.addEventListener("heading-done", reveal, { once: true });
+    if ((section as any).__headingDone) { onHeadingDone(); return; }
+    section.addEventListener("heading-done", onHeadingDone, { once: true });
 
-    return () => section.removeEventListener("heading-done", reveal);
+    return () => section.removeEventListener("heading-done", onHeadingDone);
   }, []);
 
   // ── Avatar glow pulse ──

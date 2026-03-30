@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useHeadingAnimation, REDUCED_MOTION } from "@/hooks/useHeadingAnimation";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function useProjectsAnimations() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -14,42 +17,29 @@ export function useProjectsAnimations() {
     const items = section.querySelectorAll<HTMLElement>("[data-project-item]");
     if (!items.length) return;
 
-    const reveal = () => {
-      const viewportBottom = window.scrollY + window.innerHeight;
+    items.forEach((item) => item.classList.remove("opacity-0"));
+    gsap.set(items, { opacity: 0, y: 50, scale: 0.95 });
 
+    const onHeadingDone = () => {
+      const triggers: ScrollTrigger[] = [];
       items.forEach((item) => {
-        const itemTop = item.getBoundingClientRect().top + window.scrollY;
-        const isInView = itemTop < viewportBottom;
-
-        // Remove CSS opacity-0 class so it doesn't fight with GSAP inline styles
-        item.classList.remove("opacity-0");
-
-        if (isInView) {
-          // Already visible — show instantly, no blink
-          gsap.set(item, { opacity: 1, y: 0, scale: 1 });
-        } else {
-          // Below viewport — animate in when scrolled to
-          gsap.set(item, { opacity: 0, y: 60, scale: 0.95 });
-          const observer = new IntersectionObserver(
-            ([entry]) => {
-              if (entry.isIntersecting) {
-                observer.disconnect();
-                gsap.to(item, {
-                  opacity: 1, y: 0, scale: 1,
-                  duration: 0.5, ease: "power3.out",
-                });
-              }
+        triggers.push(
+          ScrollTrigger.create({
+            trigger: item,
+            start: "top 85%",
+            once: true,
+            onEnter: () => {
+              gsap.to(item, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out" });
             },
-            { threshold: 0.1 },
-          );
-          observer.observe(item);
-        }
+          }),
+        );
       });
     };
 
-    section.addEventListener("heading-done", reveal, { once: true });
+    if ((section as any).__headingDone) { onHeadingDone(); return; }
+    section.addEventListener("heading-done", onHeadingDone, { once: true });
 
-    return () => section.removeEventListener("heading-done", reveal);
+    return () => section.removeEventListener("heading-done", onHeadingDone);
   }, []);
 
   return sectionRef;
