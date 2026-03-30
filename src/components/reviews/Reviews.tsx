@@ -94,22 +94,66 @@ export function Reviews({ reviews = [] }: ReviewsComponentProps) {
       snap: false,
     });
 
-    // Hover pause/resume
+    // Hover pause/resume — desktop only (mobile has no mouseleave, causes stuck state)
     let tween: gsap.core.Tween;
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+
     const onEnter = () => {
+      if (isTouch) return;
       tween?.kill();
       tween = gsap.to(loop, { timeScale: 0, duration: 0.5, ease: "power2.out" });
     };
     const onLeave = () => {
+      if (isTouch) return;
       tween?.kill();
       tween = gsap.to(loop, { timeScale: 1, duration: 0.5, ease: "power2.in" });
     };
 
-    // Pointer drag
+    // Drag — desktop uses pointer events, mobile uses touch events
     let dragging = false;
     let startX = 0;
     let startProgress = 0;
 
+    if (isTouch) {
+      // Touch: swipe left/right to scrub, hold to pause
+      let touching = false;
+
+      const onTouchStart = (e: TouchEvent) => {
+        touching = true;
+        dragging = false;
+        startX = e.touches[0].clientX;
+        startProgress = loop.progress();
+        loop.pause();
+      };
+      const onTouchMove = (e: TouchEvent) => {
+        if (!touching) return;
+        const deltaX = e.touches[0].clientX - startX;
+        if (Math.abs(deltaX) > 10) dragging = true;
+        if (dragging) {
+          const delta = deltaX / track.offsetWidth;
+          loop.progress(startProgress - delta * 0.5);
+        }
+      };
+      const onTouchEnd = () => {
+        touching = false;
+        dragging = false;
+        loop.play();
+      };
+
+      track.addEventListener("touchstart", onTouchStart, { passive: true });
+      track.addEventListener("touchmove", onTouchMove, { passive: true });
+      track.addEventListener("touchend", onTouchEnd);
+
+      return () => {
+        loop.kill();
+        tween?.kill();
+        track.removeEventListener("touchstart", onTouchStart);
+        track.removeEventListener("touchmove", onTouchMove);
+        track.removeEventListener("touchend", onTouchEnd);
+      };
+    }
+
+    // Desktop: pointer drag
     const onDown = (e: PointerEvent) => {
       dragging = true;
       startX = e.clientX;
@@ -124,7 +168,6 @@ export function Reviews({ reviews = [] }: ReviewsComponentProps) {
       loop.progress(startProgress - delta * 0.5);
     };
     const onUp = () => {
-      if (!dragging) return;
       dragging = false;
       loop.play();
       track.style.cursor = "grab";
