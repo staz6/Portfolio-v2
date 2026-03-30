@@ -106,7 +106,7 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{exp.position}</p>
             {isActive && (
               <div className="relative mt-2 border-t border-border/10 pt-2">
-                <div ref={scrollRef} className={`max-h-52 space-y-1 overflow-y-auto pr-1 ${isOverflowing ? "pb-10" : ""}`} style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+                <div ref={scrollRef} className={`max-h-36 space-y-1 overflow-y-auto pr-1 lg:max-h-44 ${isOverflowing ? "pb-10" : ""}`} style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
                   <p className="text-[9px] text-muted-foreground/50">{exp.startDate} — {exp.endDate ?? "Present"}</p>
                   {exp.highlights.map((h, j) => (
                     <div key={j} className="flex items-start gap-2">
@@ -287,7 +287,7 @@ export function OrbitalSystem({ experiences }: { experiences: ExperienceProps[] 
 
   return (
     <div className="relative pb-24">
-      <div className="relative h-[600px] lg:h-[700px]" style={{ overflow: "visible" }}>
+      <div className="relative h-[65vh] min-h-[500px] lg:h-[75vh] lg:min-h-[600px]" style={{ overflow: "visible" }}>
         <Canvas camera={{ position: [0, 1.8, 6.5], fov: 48 }} dpr={[1, 1.25]} style={{ overflow: "visible" }}>
           <Suspense fallback={null}>
             <ambientLight intensity={0.35} />
