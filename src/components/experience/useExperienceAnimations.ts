@@ -7,34 +7,22 @@ export function useExperienceAnimations() {
 
   useHeadingAnimation(sectionRef, { prefix: "experience" });
 
-  // ── Experience items entrance via IO ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
 
-    const items = section.querySelectorAll("[data-exp-item]");
-    if (!items.length) return;
+    const content = section.querySelector("[data-exp-content]");
+    if (!content) return;
 
-    gsap.set(items, { y: 50, opacity: 0 });
+    gsap.set(content, { opacity: 0, y: 40 });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            observer.unobserve(entry.target);
-            gsap.to(entry.target, {
-              y: 0, opacity: 1, duration: 0.8,
-              ease: "power4.out",
-            });
-          }
-        });
-      },
-      { threshold: 0.05 },
-    );
+    const reveal = () => {
+      gsap.to(content, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" });
+    };
 
-    items.forEach((item) => observer.observe(item));
+    section.addEventListener("heading-done", reveal, { once: true });
 
-    return () => observer.disconnect();
+    return () => section.removeEventListener("heading-done", reveal);
   }, []);
 
   return sectionRef;

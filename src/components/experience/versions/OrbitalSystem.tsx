@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useEffect, useCallback, Suspense } from "rea
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, Billboard, MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
+import gsap from "gsap";
 import type { ExperienceProps } from "@/sanity/lib/mappers";
 
 function CentralOrb() {
@@ -205,10 +206,38 @@ function Nebula() {
 
 /* ── Mobile card list fallback ── */
 function MobileExperience({ experiences }: { experiences: ExperienceProps[] }) {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+
+    const cards = list.querySelectorAll<HTMLElement>("[data-mobile-card]");
+    gsap.set(cards, { y: 50, opacity: 0 });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target);
+            gsap.to(entry.target, {
+              y: 0, opacity: 1, duration: 0.7,
+              ease: "power3.out",
+            });
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
+
+    cards.forEach((card) => observer.observe(card));
+    return () => observer.disconnect();
+  }, [experiences]);
+
   return (
-    <div className="space-y-6 px-6 pb-24">
+    <div ref={listRef} className="space-y-6 px-6 pb-24">
       {experiences.map((exp, i) => (
-        <div key={exp.companyName} className="rounded-3xl border border-primary/20 bg-card/90 p-6 shadow-2xl backdrop-blur-xl">
+        <div key={exp.companyName} data-mobile-card className="rounded-3xl border border-primary/20 bg-card/90 p-6 shadow-2xl backdrop-blur-xl">
           <div className="mb-4 flex items-center gap-4">
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-lg font-bold text-white">
               {String(i + 1).padStart(2, "0")}

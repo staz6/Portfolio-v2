@@ -177,7 +177,7 @@ export function Reviews({ reviews = [] }: ReviewsComponentProps) {
       </div>
 
       {/* Review cards */}
-      <div data-reviews-content className="relative z-10 pb-24 lg:pb-40">
+      <div data-reviews-content className="relative z-10 pb-24 opacity-0 lg:pb-40">
         <div
           ref={trackRef}
           className="flex cursor-grab gap-6 py-2 select-none"

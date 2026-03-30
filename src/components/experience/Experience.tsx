@@ -20,7 +20,7 @@ export function Experience({ experiences = [] }: ExperienceSectionProps) {
         <ExperienceHeading />
       </div>
 
-      <div className="relative z-10 mt-10">
+      <div data-exp-content className="relative z-10 mt-10 opacity-0">
         <OrbitalSystem experiences={experiences} />
       </div>
     </section>

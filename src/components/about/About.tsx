@@ -11,22 +11,7 @@ interface AboutProps {
 }
 
 export function About({ description, highlights }: AboutProps) {
-  const sectionRef = useAboutAnimations((tl, section) => {
-    // Paragraph lines reveal
-    tl.from(section.querySelectorAll("[data-about-line]"), {
-      y: 30, opacity: 0, duration: 0.6, stagger: 0.12,
-    }, "-=0.8");
-
-    // Divider grows from left
-    tl.from(section.querySelector("[data-about-divider]"), {
-      scaleX: 0, transformOrigin: "left", duration: 0.6,
-    }, "-=0.3");
-
-    // Highlight pills pop in
-    tl.from(section.querySelectorAll("[data-about-pill]"), {
-      y: 20, opacity: 0, scale: 0.9, duration: 0.5, stagger: 0.08, ease: "back.out(1.7)",
-    }, "-=0.3");
-  });
+  const sectionRef = useAboutAnimations();
 
   // Continuous breathing animations
   useEffect(() => {

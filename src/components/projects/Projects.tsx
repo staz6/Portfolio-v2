@@ -27,7 +27,7 @@ export function Projects({ projects = [] }: ProjectsProps) {
 
       {/* Projects grid */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 lg:px-10">
-        <div data-project-list className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
+        <div data-project-list className="grid grid-cols-1 gap-6 opacity-0 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
           {projects.map((p, i) => (
             <ProjectCard key={p.slug.current} project={p} index={i} />
           ))}

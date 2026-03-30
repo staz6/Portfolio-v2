@@ -84,7 +84,7 @@ export function Contact({ socialLinks = [], footerText }: ContactProps) {
       </div>
 
       {/* Marquee */}
-      <div data-contact-content className="relative z-10">
+      <div data-contact-content className="relative z-10 opacity-0">
         <div data-contact-reveal className="my-12 lg:my-20">
           <Marquee />
         </div>
