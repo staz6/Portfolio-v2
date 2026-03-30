@@ -11,13 +11,17 @@ export function useProjectsAnimations() {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
 
-    const list = section.querySelector("[data-project-list]");
-    if (!list) return;
+    // Keep grid visible, hide individual cards
+    const items = section.querySelectorAll("[data-project-item]");
+    if (!items.length) return;
 
-    gsap.set(list, { opacity: 0, y: 40 });
+    gsap.set(items, { y: 60, opacity: 0, scale: 0.95 });
 
     const reveal = () => {
-      gsap.to(list, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" });
+      gsap.to(items, {
+        y: 0, opacity: 1, scale: 1,
+        duration: 0.5, stagger: 0.1, ease: "power3.out",
+      });
     };
 
     section.addEventListener("heading-done", reveal, { once: true });

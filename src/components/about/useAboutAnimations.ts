@@ -32,13 +32,13 @@ export function useAboutAnimations() {
 
       if (sceneWrap) {
         tl.to(sceneWrap, {
-          opacity: 1, y: 0, duration: 0.8,
+          opacity: 1, y: 0, duration: 0.3,
           onStart: () => { window.dispatchEvent(new Event("about-scene-enter")); },
         });
       }
 
       if (content) {
-        tl.to(content, { opacity: 1, y: 0, duration: 0.8 }, "<");
+        tl.to(content, { opacity: 1, y: 0, duration: 0.3 }, "<");
       }
     };
 

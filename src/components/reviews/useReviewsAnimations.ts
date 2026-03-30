@@ -14,10 +14,10 @@ export function useReviewsAnimations() {
     const content = section.querySelector("[data-reviews-content]");
     if (!content) return;
 
-    gsap.set(content, { opacity: 0, y: 40 });
+    gsap.set(content, { opacity: 0 });
 
     const reveal = () => {
-      gsap.to(content, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" });
+      gsap.to(content, { opacity: 1, duration: 0.2, ease: "power2.out" });
     };
 
     section.addEventListener("heading-done", reveal, { once: true });
