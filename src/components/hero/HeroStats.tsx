@@ -32,12 +32,12 @@ export function HeroStats({ stats }: { stats?: HeroStat[] }) {
   }, 2500);
 
   return (
-    <div ref={containerRef} className="flex gap-2 md:gap-6">
+    <div ref={containerRef} className="flex w-full gap-2 md:gap-6">
       {data.map((stat) => (
         <div
           key={stat.label}
           data-hero-stat
-          className="flex flex-1 flex-col rounded-xl border border-primary/10 bg-primary/[0.04] px-3 py-3 md:px-5 md:py-4"
+          className="flex min-w-0 flex-1 flex-col rounded-xl border border-primary/10 bg-primary/[0.04] px-3 py-3 md:px-5 md:py-4"
         >
           <div className="flex items-baseline gap-0.5">
             <span
