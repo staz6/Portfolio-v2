@@ -52,6 +52,15 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
     }
   }, [isActive]);
 
+  // On hover: smooth scroll to bottom — fires once, completes independently of pointer events
+  const pillCallbackRef = useCallback((pill: HTMLSpanElement | null) => {
+    if (!pill) return;
+    pill.addEventListener("pointerenter", () => {
+      const scroll = scrollRef.current;
+      if (scroll) scroll.scrollTo({ top: scroll.scrollHeight, behavior: "smooth" });
+    });
+  }, []);
+
   useFrame(({ clock, camera }) => {
     if (!ref.current) return;
     if (isActive) {
@@ -102,7 +111,10 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
                 </div>
                 {isOverflowing && (
                   <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex h-10 items-end justify-center bg-gradient-to-t from-card/90 to-transparent">
-                    <span className="mb-1 flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[8px] font-medium tracking-wider text-primary shadow-[0_0_10px_rgba(167,139,250,0.3)]">
+                    <span
+                      ref={pillCallbackRef}
+                      className="pointer-events-auto mb-1 flex cursor-pointer items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[8px] font-medium tracking-wider text-primary shadow-[0_0_10px_rgba(167,139,250,0.3)]"
+                    >
                       scroll ↓
                     </span>
                   </div>
