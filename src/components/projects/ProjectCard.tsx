@@ -224,16 +224,14 @@ function ProjectOverlay({
         {/* Info — staggered reveal */}
         <div className="flex flex-col gap-5 overflow-y-auto p-6 lg:p-10">
           {/* Close */}
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0, transition: { duration: 0.4, delay: 0.3, ease: [0.16, 1, 0.3, 1] } }}
+          <button
             onClick={onClose}
-            className="absolute right-5 top-5 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-border/30 bg-card/80 text-foreground/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-primary/20 hover:text-foreground hover:rotate-90"
+            className="absolute right-5 top-5 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-border/30 bg-card/80 text-foreground/60 backdrop-blur-sm transition-colors duration-300 hover:border-primary/50 hover:bg-primary/20 hover:text-foreground"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </motion.button>
+          </button>
 
           {/* Role */}
           <motion.span custom={1} variants={infoItemVariants} initial="hidden" animate="visible" className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
