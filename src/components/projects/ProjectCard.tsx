@@ -19,11 +19,16 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
   // Lock body scroll when overlay is open
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
+      document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   // Scroll-linked entrance with reverse
@@ -64,7 +69,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         ref={cardRef}
         data-project-item={index}
         onClick={() => setIsOpen(true)}
-        className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/20 bg-card will-change-transform transition-[border-color] duration-300 hover:border-primary/30"
+        className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/20 bg-card opacity-0 will-change-transform transition-[border-color] duration-300 hover:border-primary/30"
       >
         {/* Image */}
         <div className="relative overflow-hidden">
@@ -219,18 +224,14 @@ function ProjectOverlay({
         {/* Info — staggered reveal */}
         <div className="flex flex-col gap-5 overflow-y-auto p-6 lg:p-10">
           {/* Close */}
-          <motion.button
-            custom={0}
-            variants={infoItemVariants}
-            initial="hidden"
-            animate="visible"
+          <button
             onClick={onClose}
-            className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border border-border/30 bg-card/80 text-foreground/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-primary/20 hover:text-foreground hover:rotate-90"
+            className="absolute right-5 top-5 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-border/30 bg-card/80 text-foreground/60 backdrop-blur-sm transition-colors duration-300 hover:border-primary/50 hover:bg-primary/20 hover:text-foreground"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </motion.button>
+          </button>
 
           {/* Role */}
           <motion.span custom={1} variants={infoItemVariants} initial="hidden" animate="visible" className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">

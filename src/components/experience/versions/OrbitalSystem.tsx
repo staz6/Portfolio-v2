@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useEffect, useCallback, Suspense } from "rea
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, Billboard, MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
+import gsap from "gsap";
 import type { ExperienceProps } from "@/sanity/lib/mappers";
 
 function CentralOrb() {
@@ -41,34 +42,24 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
   const [isOverflowing, setIsOverflowing] = useState(false);
   const startA = (index / total) * Math.PI * 2;
 
-  const checkOverflow = useCallback(() => {
-    const el = scrollRef.current;
-    if (el) setIsOverflowing(el.scrollHeight > el.clientHeight);
-  }, []);
-
   useEffect(() => {
     if (isActive) {
-      checkOverflow();
-      // Recheck after Html component renders inside the canvas
-      const t = setTimeout(checkOverflow, 200);
+      const t = setTimeout(() => {
+        const el = scrollRef.current;
+        if (el) setIsOverflowing(el.scrollHeight > el.clientHeight);
+      }, 200);
       return () => clearTimeout(t);
     }
-  }, [isActive, checkOverflow]);
-
-  // Prevent scroll from bubbling to the page when inside the card
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el || !isActive) return;
-    const onWheel = (e: WheelEvent) => {
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      const atTop = scrollTop === 0 && e.deltaY < 0;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 1 && e.deltaY > 0;
-      if (atTop || atBottom) e.preventDefault();
-      e.stopPropagation();
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
   }, [isActive]);
+
+  // On hover: smooth scroll to bottom — fires once, completes independently of pointer events
+  const pillCallbackRef = useCallback((pill: HTMLSpanElement | null) => {
+    if (!pill) return;
+    pill.addEventListener("pointerenter", () => {
+      const scroll = scrollRef.current;
+      if (scroll) scroll.scrollTo({ top: scroll.scrollHeight, behavior: "smooth" });
+    });
+  }, []);
 
   useFrame(({ clock, camera }) => {
     if (!ref.current) return;
@@ -105,7 +96,11 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{exp.position}</p>
             {isActive && (
               <div className="relative mt-2 border-t border-border/10 pt-2">
-                <div ref={scrollRef} className={`max-h-52 space-y-1 overflow-y-auto pr-1 ${isOverflowing ? "pb-10" : ""}`} style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+                <div
+                  ref={scrollRef}
+                  className={`max-h-36 space-y-1 overflow-y-auto overscroll-contain touch-pan-y pr-1 lg:max-h-44 ${isOverflowing ? "pb-10" : ""}`}
+                  style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+                >
                   <p className="text-[9px] text-muted-foreground/50">{exp.startDate} — {exp.endDate ?? "Present"}</p>
                   {exp.highlights.map((h, j) => (
                     <div key={j} className="flex items-start gap-2">
@@ -114,10 +109,12 @@ function OrbitCard({ exp, index, total, radius, speed, isActive, onSelect }: {
                     </div>
                   ))}
                 </div>
-                {/* Fade hint + scroll indicator */}
                 {isOverflowing && (
                   <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex h-10 items-end justify-center bg-gradient-to-t from-card/90 to-transparent">
-                    <span className="mb-1 flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[8px] font-medium tracking-wider text-primary shadow-[0_0_10px_rgba(167,139,250,0.3)]">
+                    <span
+                      ref={pillCallbackRef}
+                      className="pointer-events-auto mb-1 flex cursor-pointer items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[8px] font-medium tracking-wider text-primary shadow-[0_0_10px_rgba(167,139,250,0.3)]"
+                    >
                       scroll ↓
                     </span>
                   </div>
@@ -205,10 +202,38 @@ function Nebula() {
 
 /* ── Mobile card list fallback ── */
 function MobileExperience({ experiences }: { experiences: ExperienceProps[] }) {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+
+    const cards = list.querySelectorAll<HTMLElement>("[data-mobile-card]");
+    gsap.set(cards, { y: 50, opacity: 0 });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target);
+            gsap.to(entry.target, {
+              y: 0, opacity: 1, duration: 0.7,
+              ease: "power3.out",
+            });
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
+
+    cards.forEach((card) => observer.observe(card));
+    return () => observer.disconnect();
+  }, [experiences]);
+
   return (
-    <div className="space-y-6 px-6 pb-24">
+    <div ref={listRef} className="space-y-6 px-6 pb-24">
       {experiences.map((exp, i) => (
-        <div key={exp.companyName} className="rounded-3xl border border-primary/20 bg-card/90 p-6 shadow-2xl backdrop-blur-xl">
+        <div key={exp.companyName} data-mobile-card className="rounded-3xl border border-primary/20 bg-card/90 p-6 shadow-2xl backdrop-blur-xl">
           <div className="mb-4 flex items-center gap-4">
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-lg font-bold text-white">
               {String(i + 1).padStart(2, "0")}
@@ -258,7 +283,7 @@ export function OrbitalSystem({ experiences }: { experiences: ExperienceProps[] 
 
   return (
     <div className="relative pb-24">
-      <div className="relative h-[600px] lg:h-[700px]" style={{ overflow: "visible" }}>
+      <div className="relative h-[65vh] min-h-[500px] lg:h-[75vh] lg:min-h-[600px]" style={{ overflow: "visible" }}>
         <Canvas camera={{ position: [0, 1.8, 6.5], fov: 48 }} dpr={[1, 1.25]} style={{ overflow: "visible" }}>
           <Suspense fallback={null}>
             <ambientLight intensity={0.35} />

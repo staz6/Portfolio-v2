@@ -2,68 +2,71 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { useHeadingAnimation, REDUCED_MOTION } from "@/hooks/useHeadingAnimation";
 
-/**
- * About section animations — all entrances via IntersectionObserver.
- */
-export function useAboutAnimations(
-  buildVariantSteps?: (tl: gsap.core.Timeline, section: HTMLElement) => void,
-) {
+export function useAboutAnimations() {
   const sectionRef = useRef<HTMLElement>(null);
-  const entranceTl = useRef<gsap.core.Timeline | null>(null);
 
-  useHeadingAnimation(sectionRef, { prefix: "about", charStagger: 0.1 });
+  useHeadingAnimation(sectionRef, { prefix: "about" });
 
-  // ── Scene + variant entrance via IO ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
+    const sceneWrap = section.querySelector<HTMLElement>("[data-about-scene-wrap]");
+    const content = section.querySelector<HTMLElement>("[data-about-content]");
+    const lines = section.querySelectorAll("[data-about-line]");
+    const divider = section.querySelector("[data-about-divider]");
+    const pills = section.querySelectorAll("[data-about-pill]");
+
     if (REDUCED_MOTION()) {
-      gsap.set(
-        section.querySelectorAll(
-          "[data-about-line], [data-about-pill], [data-about-divider], [data-v2-skill-word], [data-v2-dot]",
-        ),
-        { opacity: 1, y: 0, x: 0, scale: 1, scaleX: 1 },
-      );
-      gsap.set(section.querySelector("[data-about-scene]"), { opacity: 1 });
+      gsap.set([...lines, ...pills], { opacity: 1, y: 0, scale: 1 });
+      if (divider) gsap.set(divider, { scaleX: 1, opacity: 1 });
+      if (sceneWrap) gsap.set(sceneWrap, { opacity: 1 });
+      if (content) gsap.set(content, { opacity: 1 });
       window.dispatchEvent(new Event("about-scene-enter"));
       return;
     }
 
-    gsap.set(section.querySelector("[data-about-scene]"), { opacity: 0 });
+    // Hide individual elements for staggered reveal
+    gsap.set(lines, { y: 20, opacity: 0 });
+    if (divider) gsap.set(divider, { scaleX: 0, transformOrigin: "left" });
+    gsap.set(pills, { y: 15, opacity: 0, scale: 0.9 });
 
-    const tl = gsap.timeline({
-      paused: true,
-      defaults: { ease: "power4.out", duration: 0.6 },
-    });
-    entranceTl.current = tl;
+    const onHeadingDone = () => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    const sceneEl = section.querySelector("[data-about-scene]");
-    if (sceneEl) {
-      tl.to(sceneEl, {
-        opacity: 1, duration: 0.8, ease: "power2.out",
-        onStart: () => { window.dispatchEvent(new Event("about-scene-enter")); },
-      });
-    }
+      // 1. Sphere fades in
+      if (sceneWrap) {
+        tl.to(sceneWrap, {
+          opacity: 1, y: 0, duration: 0.5,
+          onStart: () => { window.dispatchEvent(new Event("about-scene-enter")); },
+        });
+      }
 
-    buildVariantSteps?.(tl, section);
+      // 2. Content wrapper visible (needed for children to show)
+      if (content) {
+        tl.to(content, { opacity: 1, y: 0, duration: 0.3 }, "<");
+      }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          observer.disconnect();
-          tl.play();
-        }
-      },
-      { threshold: 0.1 },
-    );
+      // 3. Paragraphs stagger in
+      if (lines.length) {
+        tl.to(lines, { y: 0, opacity: 1, duration: 0.5, stagger: 0.1 }, "-=0.2");
+      }
 
-    observer.observe(section);
+      // 4. Divider grows from left
+      if (divider) {
+        tl.to(divider, { scaleX: 1, duration: 0.4 }, "-=0.2");
+      }
 
-    return () => {
-      observer.disconnect();
-      entranceTl.current?.kill();
+      // 5. Skill pills pop in
+      if (pills.length) {
+        tl.to(pills, { y: 0, opacity: 1, scale: 1, duration: 0.4, stagger: 0.06, ease: "back.out(1.7)" }, "-=0.2");
+      }
     };
+
+    if ((section as any).__headingDone) { onHeadingDone(); return; }
+    section.addEventListener("heading-done", onHeadingDone, { once: true });
+
+    return () => section.removeEventListener("heading-done", onHeadingDone);
   }, []);
 
   return sectionRef;

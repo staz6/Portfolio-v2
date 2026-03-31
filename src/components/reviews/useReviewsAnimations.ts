@@ -7,45 +7,21 @@ export function useReviewsAnimations() {
 
   useHeadingAnimation(sectionRef, { prefix: "reviews" });
 
-  // ── Content entrance via IO ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
 
-    const rows = section.querySelectorAll("[data-reviews-row]");
-    if (!rows.length) return;
+    const content = section.querySelector<HTMLElement>("[data-reviews-content]");
+    if (!content) return;
 
-    const allStars: Element[] = [];
-    section.querySelectorAll("[data-review-stars]").forEach((container) => {
-      container.querySelectorAll("svg").forEach((star) => allStars.push(star));
-    });
+    const onHeadingDone = () => {
+      gsap.to(content, { opacity: 1, duration: 0.4, ease: "power2.out" });
+    };
 
-    gsap.set(rows, { y: 50, opacity: 0 });
-    if (allStars.length) gsap.set(allStars, { scale: 0, opacity: 0 });
+    if ((section as any).__headingDone) { onHeadingDone(); return; }
+    section.addEventListener("heading-done", onHeadingDone, { once: true });
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          observer.disconnect();
-
-          const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-
-          tl.to(rows, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1 });
-
-          if (allStars.length) {
-            tl.to(allStars, {
-              scale: 1, opacity: 1, duration: 0.3, stagger: 0.03,
-              ease: "back.out(1.7)",
-            }, "-=0.3");
-          }
-        }
-      },
-      { threshold: 0.05 },
-    );
-
-    observer.observe(section);
-
-    return () => observer.disconnect();
+    return () => section.removeEventListener("heading-done", onHeadingDone);
   }, []);
 
   // ── Avatar glow pulse ──

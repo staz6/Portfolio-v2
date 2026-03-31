@@ -84,7 +84,7 @@ export function Contact({ socialLinks = [], footerText }: ContactProps) {
       </div>
 
       {/* Marquee */}
-      <div data-contact-content className="relative z-10">
+      <div data-contact-content className="relative z-10 opacity-0">
         <div data-contact-reveal className="my-12 lg:my-20">
           <Marquee />
         </div>
@@ -169,13 +169,24 @@ function Marquee() {
 /* ── Rotating Badge ─────────────────────────────────────────── */
 
 function RotatingBadge() {
-  const magneticRef = useMagnetic<HTMLDivElement>({ strength: 0.25 });
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
+  const magneticRef = useMagnetic<HTMLDivElement>({ strength: isMobile ? 0 : 0.25 });
+
+  const handleClick = () => {
+    const form = document.querySelector("[data-contact-form]");
+    if (form) {
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+      const firstInput = form.querySelector("input");
+      if (firstInput) setTimeout(() => firstInput.focus(), 600);
+    }
+  };
 
   return (
     <div
       ref={magneticRef}
       data-cursor-scale
-      className="group relative flex h-44 w-44 flex-shrink-0 items-center justify-center lg:h-56 lg:w-56"
+      onClick={handleClick}
+      className="group relative flex h-44 w-44 flex-shrink-0 cursor-pointer items-center justify-center lg:h-56 lg:w-56"
     >
       <svg
         data-contact-badge
@@ -195,9 +206,10 @@ function RotatingBadge() {
         </text>
       </svg>
 
-      <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-border/60 bg-transparent transition-all duration-500 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-[0_0_40px_var(--primary)] lg:h-24 lg:w-24">
+      <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-border/60 bg-transparent transition-all duration-500 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-[0_0_40px_var(--primary)] active:border-primary active:bg-primary active:text-primary-foreground active:shadow-[0_0_40px_var(--primary)] lg:h-24 lg:w-24">
+        {/* Arrow: points up on mobile, points left on desktop hover */}
         <svg
-          className="h-7 w-7 -rotate-45 transition-transform duration-500 group-hover:rotate-0 lg:h-8 lg:w-8"
+          className="h-7 w-7 -rotate-90 transition-transform duration-500 group-hover:-rotate-90 lg:h-8 lg:w-8 lg:group-hover:-rotate-180"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -206,7 +218,7 @@ function RotatingBadge() {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M7 17L17 7M17 7H7M17 7v10"
+            d="M5 12h14M12 5l7 7-7 7"
           />
         </svg>
       </div>
@@ -220,7 +232,7 @@ function ContactForm() {
   const { formState, errorMsg, handleSubmit } = useFormSubmit();
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-12">
+    <form data-contact-form onSubmit={handleSubmit} className="flex flex-col gap-12">
       {/* Mad-lib paragraph */}
       <div className="font-heading text-2xl font-medium leading-[2.4] tracking-tight text-foreground sm:text-3xl lg:text-4xl lg:leading-[2.4]">
         <span className="text-muted-foreground">Hey! My name is</span>{" "}

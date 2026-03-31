@@ -214,7 +214,7 @@ export function Hero({
               <HeroSocials socials={socials} />
             </div>
           </div>
-          <div className="flex flex-col items-start gap-6 lg:items-end">
+          <div className="flex w-full flex-col items-start gap-6 lg:w-auto lg:items-end">
             <HeroStats stats={stats} />
             <HeroLocation location={location} />
           </div>
