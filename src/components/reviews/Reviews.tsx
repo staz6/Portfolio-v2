@@ -94,18 +94,8 @@ export function Reviews({ reviews = [] }: ReviewsComponentProps) {
       snap: false,
     });
 
-    // Hover pause/resume
-    let tween: gsap.core.Tween;
-    const onEnter = () => {
-      tween?.kill();
-      tween = gsap.to(loop, { timeScale: 0, duration: 0.5, ease: "power2.out" });
-    };
-    const onLeave = () => {
-      tween?.kill();
-      tween = gsap.to(loop, { timeScale: 1, duration: 0.5, ease: "power2.in" });
-    };
-
-    // Pointer drag
+    // Drag to scrub — works on all devices via pointer events
+    // Only pauses loop during active drag, never on hover or tap
     let dragging = false;
     let startX = 0;
     let startProgress = 0;
@@ -115,7 +105,6 @@ export function Reviews({ reviews = [] }: ReviewsComponentProps) {
       startX = e.clientX;
       startProgress = loop.progress();
       loop.pause();
-      track.setPointerCapture(e.pointerId);
       track.style.cursor = "grabbing";
     };
     const onMove = (e: PointerEvent) => {
@@ -127,23 +116,20 @@ export function Reviews({ reviews = [] }: ReviewsComponentProps) {
       if (!dragging) return;
       dragging = false;
       loop.play();
-      track.style.cursor = "grab";
+      track.style.cursor = "";
     };
 
-    track.addEventListener("mouseenter", onEnter);
-    track.addEventListener("mouseleave", onLeave);
     track.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
 
     return () => {
       loop.kill();
-      tween?.kill();
-      track.removeEventListener("mouseenter", onEnter);
-      track.removeEventListener("mouseleave", onLeave);
       track.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
   }, [reviews]);
 
@@ -177,10 +163,10 @@ export function Reviews({ reviews = [] }: ReviewsComponentProps) {
       </div>
 
       {/* Review cards */}
-      <div data-reviews-content className="relative z-10 pb-24 lg:pb-40">
+      <div data-reviews-content className="relative z-10 pb-24 opacity-0 lg:pb-40">
         <div
           ref={trackRef}
-          className="flex cursor-grab gap-6 py-2 select-none"
+          className="flex cursor-grab gap-6 py-2 select-none touch-pan-y"
         >
           {reviews.map((review, i) => (
             <div key={i} data-review-slide className="shrink-0">

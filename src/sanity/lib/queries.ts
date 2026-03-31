@@ -40,7 +40,7 @@ export const PROJECTS_QUERY = `
     slug,
     description,
     projectUrl,
-    "thumbnail": thumbnail.asset->url,
+    "thumbnail": thumbnail.asset->url + "?w=800&q=80&fm=webp",
     role,
     skills,
     order
@@ -68,7 +68,7 @@ export const REVIEWS_QUERY = `
     name,
     role,
     testimonial,
-    "avatarUrl": avatar.asset->url,
+    "avatarUrl": avatar.asset->url + "?w=100&q=80&fm=webp",
     rating,
     order
   }

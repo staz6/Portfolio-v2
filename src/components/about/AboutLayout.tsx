@@ -29,12 +29,14 @@ export function AboutLayout({ sectionRef, children, contentGap = "lg:gap-20", sc
 
         <div className={`mt-14 grid grid-cols-1 items-center gap-10 lg:mt-20 lg:grid-cols-2 ${contentGap}`}>
           {/* Left — 3D sphere */}
-          <div className="relative mx-auto aspect-square w-full max-w-sm lg:mx-0 lg:max-w-none">
+          <div className="relative mx-auto aspect-square w-full max-w-sm opacity-0 lg:mx-0 lg:max-w-none" data-about-scene-wrap>
             {scene ?? <AboutScene />}
           </div>
 
           {/* Right — variant content */}
-          {children}
+          <div data-about-content className="opacity-0">
+            {children}
+          </div>
         </div>
       </div>
     </section>

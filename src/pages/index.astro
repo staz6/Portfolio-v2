@@ -96,19 +96,19 @@ const reviewsData = reviews?.length ? mapReviews(reviews) : [];
     />
 
     <About
-      client:visible
+      client:idle
       description={aboutData?.description}
       highlights={aboutData?.highlights}
     />
 
-    <Projects client:visible projects={projectsData} />
+    <Projects client:idle projects={projectsData} />
 
-    <Experience client:visible experiences={experiencesData} />
+    <Experience client:idle experiences={experiencesData} />
 
-    <Reviews client:visible reviews={reviewsData} />
+    <Reviews client:idle reviews={reviewsData} />
 
     <Contact
-      client:visible
+      client:idle
       socialLinks={contactProps?.socialLinks}
       footerText={contactProps?.footerText}
     />

@@ -1,40 +1,45 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useHeadingAnimation, REDUCED_MOTION } from "@/hooks/useHeadingAnimation";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function useProjectsAnimations() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  useHeadingAnimation(sectionRef, { prefix: "projects", charStagger: 0.1 });
+  useHeadingAnimation(sectionRef, { prefix: "projects" });
 
-  // ── Cards entrance via IO — each card observed individually ──
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || REDUCED_MOTION()) return;
 
-    const items = section.querySelectorAll("[data-project-item]");
+    const items = section.querySelectorAll<HTMLElement>("[data-project-item]");
     if (!items.length) return;
 
-    gsap.set(items, { y: 80, opacity: 0, scale: 0.95 });
+    items.forEach((item) => item.classList.remove("opacity-0"));
+    gsap.set(items, { opacity: 0, y: 50, scale: 0.95 });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            observer.unobserve(entry.target);
-            gsap.to(entry.target, {
-              y: 0, opacity: 1, scale: 1, duration: 0.8,
-              ease: "power3.out",
-            });
-          }
-        });
-      },
-      { threshold: 0.1 },
-    );
+    const onHeadingDone = () => {
+      const triggers: ScrollTrigger[] = [];
+      items.forEach((item) => {
+        triggers.push(
+          ScrollTrigger.create({
+            trigger: item,
+            start: "top 82%",
+            once: true,
+            onEnter: () => {
+              gsap.to(item, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out" });
+            },
+          }),
+        );
+      });
+    };
 
-    items.forEach((item) => observer.observe(item));
+    if ((section as any).__headingDone) { onHeadingDone(); return; }
+    section.addEventListener("heading-done", onHeadingDone, { once: true });
 
-    return () => observer.disconnect();
+    return () => section.removeEventListener("heading-done", onHeadingDone);
   }, []);
 
   return sectionRef;
