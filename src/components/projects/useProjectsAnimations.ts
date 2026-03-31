@@ -26,7 +26,7 @@ export function useProjectsAnimations() {
         triggers.push(
           ScrollTrigger.create({
             trigger: item,
-            start: "top 85%",
+            start: "top 82%",
             once: true,
             onEnter: () => {
               gsap.to(item, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power3.out" });
